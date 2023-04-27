@@ -28,6 +28,15 @@ observeEvent( input$submit, {
       &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
     ]
     ,selected = 'ShinyGroup')
+
+    updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=colnames(reactivevalue$SeuratObject@meta.data)[
+      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
+      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    ]
+    ,selected = 'ShinyGroup')
+
+
+
     #updateSelectizeInput(session = session,inputId = 'Violingroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
     #  !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
     #  &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
@@ -39,7 +48,6 @@ observeEvent( input$submit, {
     ]
     ,selected = NULL)
 
-    output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
     DGE_Group_Candidate=c()
     for (i in colnames(reactivevalue$SeuratObject@meta.data)[
       !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
@@ -50,18 +58,39 @@ observeEvent( input$submit, {
     updateSelectizeInput(session = session,inputId = 'Assay',choices=names(reactivevalue$SeuratObject@assays),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
-
-    output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
-
     print('Finish Loading')
 }
 })
 
+observeEvent( input$SampleColumn, {
+  if (!is.null(input$SampleColumn)&!is.null(reactivevalue$SeuratObject)){
+  updateSelectInput(session = session,inputId = 'SampletoSubset',choices=unique(reactivevalue$SeuratObject@meta.data[,input$SampleColumn]),selected = NULL)
 
-observeEvent( input$reduction, {
+}
+})
+
+
+ReductionListener <- reactive({
+  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
+})
+
+observeEvent( ReductionListener(), {
   if (is.null(input$reduction)) return()
+  if (!is.null(input$SampletoSubset)) {
+    kept=rownames(reactivevalue$SeuratObject@meta.data)[!reactivevalue$SeuratObject@meta.data[,input$SampleColumn]%in%input$SampletoSubset]
+    if (length(kept)!=0) {
+      temp=subset(reactivevalue$SeuratObject,cells=kept)
+      output$tsne=renderPlot(DimPlot(temp,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
 
+    } else {
+      output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
+
+    }
+  } else {
     output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
+
+  }
+
 
 })
 
