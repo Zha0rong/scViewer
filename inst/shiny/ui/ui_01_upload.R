@@ -1,6 +1,6 @@
-accepted = c("rds",
-             "rdata",
-             "h5seurat",
+accepted = c(".rds",
+             ".rdata",
+             ".h5seurat",
              ".csv")
 tabPanel("Upload Data",
     useShinyjs(),
