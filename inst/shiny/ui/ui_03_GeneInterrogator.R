@@ -23,7 +23,7 @@ tabPanel("Ridge Plot",
          #selectizeInput('Ridgegroup','Enter the grouping variable for Violin Plot',choices = NULL,selected = NULL),
 
          imageOutput('RidgePlot')
-),
+)
 #tabPanel("Differential Expression Analysis",
 #         selectizeInput('DGEGroup','Enter the grouping variable for Differential Expression',choices = NULL,selected = NULL),
 #         selectizeInput('DGEGroup1','Enter the First Group for Differential Expression',choices = NULL,selected = NULL),
