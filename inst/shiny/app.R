@@ -1,12 +1,7 @@
 require(shiny)
 require(shinyjs)
 require(shinythemes)
-require(SummarizedExperiment)
-require(pheatmap)
-require(ggplot2)
-require(plotly)
 require(data.table)
-require(reader)
 require(Seurat)
 
 ui <- navbarPage(
