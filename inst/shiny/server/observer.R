@@ -1,50 +1,45 @@
-#### Obtain the Counts matrix and Count table location ####
 observeEvent( input$Seurat_Object, {
   if (is.null(input$Seurat_Object)) return()
-  #reactivevalue$counts = input$counts
   reactivevalue$object_location=input$Seurat_Object$datapath
 
-  #output$Seurat_Object=readRDS(reactivevalue$object_location)
 })
 
 observeEvent( input$submit, {
   if (!is.null(reactivevalue$object_location)){
     reactivevalue$SeuratObject=readRDS(reactivevalue$object_location)
+    print('Finish Loading')
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL)
-
+    print('Finish Loading Genes')
     updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
       !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
       &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
     ]
                          ,selected = NULL)
+    print('Finish Loading Variables to Group')
     updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$SeuratObject@meta.data)[
       !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
       &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
     ]
     ,selected = 'ShinyGroup')
+    print('Finish Loading Variables to Split')
 
     updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=colnames(reactivevalue$SeuratObject@meta.data)[
       !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
       &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
     ]
     ,selected = 'ShinyGroup')
+    print('Finish Loading Sample Column')
 
-
-
-    #updateSelectizeInput(session = session,inputId = 'Violingroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
-    #  !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-    #  &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
-    #]
-    #,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
       !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
       &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
     ]
     ,selected = NULL)
+    print('Finish Loading Plot Group')
 
     DGE_Group_Candidate=c()
     for (i in colnames(reactivevalue$SeuratObject@meta.data)[
@@ -56,6 +51,8 @@ observeEvent( input$submit, {
     updateSelectizeInput(session = session,inputId = 'Assay',choices=names(reactivevalue$SeuratObject@assays),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
+    print('Finish Loading DGE Group')
+
 }
 })
 
@@ -205,49 +202,18 @@ observeEvent(input$submitDGE, {
                         assay=input$Assay)
     Results$gene=rownames(Results)
     output$DifferentialExpressionAnalysisResults=renderDataTable(Results)
-    reactivevalue$DifferentialExpressionAnalysisResults=Results
-    Results$p_val_adj=ifelse(Results$p_val_adj==0,yes=min(Results$p_val_adj)/10,no=Results$p_val_adj)
-    volcano.plot <- function(Results,fcthresh=0.25,pvalthres=0.05) {
-      Results$color='grey'
-      Results$color=ifelse((Results$avg_log2FC>fcthresh&Results$p_val_adj<pvalthres),
-                           yes='Red',
-                           no=Results$color)
-      Results$color=ifelse((Results$avg_log2FC<(-1*fcthresh)&Results$p_val_adj<pvalthres),
-                           yes='blue',
-                           no=Results$color)
-      if (length(table(Results$color))==3) {
-        Results$color=factor(Results$color,levels = c('red','grey','blue'))
-        volcano=ggplot(Results,aes(x=avg_log2FC,y=-log10(p_val_adj),coluor=color))+geom_point()+xlim(c(
-          max(abs(Results$avg_log2FC))*(-1),
-          max(abs(Results$avg_log2FC))*(1),
-        ))+scale_color_manual(values = c('darkred','grey','blue'))
-
-      } else if (length(table(Results$color))==2) {
-        if ('red'%in%Results$color) {
-        Results$color=factor(Results$color,levels = c('red','grey'))
-        volcano=ggplot(Results,aes(x=avg_log2FC,y=-log10(p_val_adj),coluor=color))+geom_point()+xlim(c(
-          max(abs(Results$avg_log2FC))*(-1),
-          max(abs(Results$avg_log2FC))*(1),
-        ))+scale_color_manual(values = c('darkred','grey'))
-
-        }
-        if ('blue'%in%Results$color) {
-          Results$color=factor(Results$color,levels = c('blue','grey'))
-          volcano=ggplot(Results,aes(x=avg_log2FC,y=-log10(p_val_adj),coluor=color))+geom_point()+xlim(c(
-            max(abs(Results$avg_log2FC))*(-1),
-            max(abs(Results$avg_log2FC))*(1),
-          ))+scale_color_manual(values = c('blue','grey'))
-
-        }
-      } else if (length(table(Results$color))==1) {
-        volcano=ggplot(Results,aes(x=avg_log2FC,y=-log10(p_val_adj),coluor=color))+geom_point()+xlim(c(
-          max(abs(Results$avg_log2FC))*(-1),
-          max(abs(Results$avg_log2FC))*(1),
-        ))+scale_color_manual(values = c('grey'))
+    output$downloadData <- downloadHandler(
+      filename = function() {
+        # Use the selected dataset as the suggested file name
+        paste0("Differential.Expression.Analysis", ".tsv")
+      },
+      content = function(file) {
+        # Write the dataset to the `file` that will be downloaded
+        write.table(Results, file,sep = '\t',quote=F)
       }
+    )
 
-    }
-    return(volcano)
+    reactivevalue$DifferentialExpressionAnalysisResults=Results
   }
   output$volcano=renderPlot((volcano.plot(Results)))
 
