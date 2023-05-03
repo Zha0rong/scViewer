@@ -5,12 +5,10 @@ observeEvent( input$Seurat_Object, {
   reactivevalue$object_location=input$Seurat_Object$datapath
 
   #output$Seurat_Object=readRDS(reactivevalue$object_location)
-  print(reactivevalue$object_location)
 })
 
 observeEvent( input$submit, {
   if (!is.null(reactivevalue$object_location)){
-    print('Start Loading')
     reactivevalue$SeuratObject=readRDS(reactivevalue$object_location)
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
@@ -58,7 +56,6 @@ observeEvent( input$submit, {
     updateSelectizeInput(session = session,inputId = 'Assay',choices=names(reactivevalue$SeuratObject@assays),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
-    print('Finish Loading')
 }
 })
 

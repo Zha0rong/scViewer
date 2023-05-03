@@ -1,4 +1,4 @@
-#' Run BatchQC shiny app
+#' Run scViewer shiny app
 #'
 #' @return The shiny app will open
 #'
@@ -6,14 +6,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' BatchQC()
+#' scViewer()
 #' }
 #' @export
 
-BatchQC <- function(dev=FALSE) {
+scViewer <- function(dev=FALSE) {
   appDir <- system.file("shiny", package="scViewer")
   if (appDir == "") {
-    stop("Could not find BatchQC. Try re-installing `scViewer`.",
+    stop("Could not find scViewer Try re-installing `scViewer`.",
          call. = FALSE)
   }
   if (dev) {
