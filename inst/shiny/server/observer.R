@@ -7,8 +7,11 @@ observeEvent( input$Seurat_Object, {
 
 observeEvent(input$LocalFile, {
 
-  if (!input$LocalFile) return()
-  reactivevalue$object_location="Final.Analysis.rds"
+  if (!input$LocalFile) {return()} else {
+    print(getwd())
+    reactivevalue$object_location="./Final.Analysis.rds"
+  }
+
 
 })
 
