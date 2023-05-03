@@ -5,6 +5,13 @@ observeEvent( input$Seurat_Object, {
 
 })
 
+observeEvent(input$LocalFile, {
+
+  if (!input$LocalFile) return()
+  reactivevalue$object_location="Final.Analysis.rds"
+
+})
+
 observeEvent( input$submit, {
   if (!is.null(reactivevalue$object_location)){
     reactivevalue$SeuratObject=readRDS(reactivevalue$object_location)

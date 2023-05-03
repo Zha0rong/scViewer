@@ -25,6 +25,7 @@ tabPanel("Upload Data",
                 multiple = FALSE,
                 accept = accepted
             ),
+            checkboxInput('LocalFile','Check if the file is already in the root directory and named as "Final.Analysis.rds"'),
             actionButton(inputId = 'submit',label = 'Submit')
 
         ),
