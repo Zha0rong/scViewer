@@ -1,4 +1,5 @@
 observeEvent( input$Seurat_Object, {
+
   if (is.null(input$Seurat_Object)) return()
   reactivevalue$object_location=input$Seurat_Object$datapath
 

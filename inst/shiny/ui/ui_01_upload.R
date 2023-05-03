@@ -4,7 +4,6 @@ accepted = c(".rds",
              ".csv")
 tabPanel("Upload Data",
     useShinyjs(),
-    #tags$style(appCSS),
     tags$div(
         class = "jumbotron",
         tags$div(
@@ -15,7 +14,6 @@ tabPanel("Upload Data",
 
         )
     ),
-    # Application title
     titlePanel("Upload Data"),
 
     sidebarLayout(
