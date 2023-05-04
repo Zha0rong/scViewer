@@ -4,6 +4,7 @@ require(shinythemes)
 require(data.table)
 require(Seurat)
 require(SingleCellExperiment)
+require(ggplot2)
 ui <- navbarPage(
 
   title = "SingleViewer",
