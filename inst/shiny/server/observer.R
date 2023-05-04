@@ -8,6 +8,8 @@ observeEvent( input$Seurat_Object, {
 observeEvent( input$submit, {
   if (!is.null(reactivevalue$object_location)){
     reactivevalue$SeuratObject=readRDS(reactivevalue$object_location)
+    print('Start Loading')
+
     if (input$objecttype=='SingleCellExperiment') {
       reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)
     }
@@ -18,39 +20,43 @@ observeEvent( input$submit, {
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL)
     print('Finish Loading Genes')
-    updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+      !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+      #&!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
                          ,selected = NULL)
     print('Finish Loading Variables to Group')
-    updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+    #  !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+    #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
     ,selected = 'ShinyGroup')
     print('Finish Loading Variables to Split')
 
-    updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+      !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+    #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
     ,selected = 'ShinyGroup')
     print('Finish Loading Sample Column')
 
-    updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+      !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+    #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
     ,selected = NULL)
     print('Finish Loading Plot Group')
 
     DGE_Group_Candidate=c()
-    for (i in colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    for (i in colnames(reactivevalue$Experiment_Metadata)[
+      !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+     &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]) {
-      DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$SeuratObject@meta.data[,i]))))
+      DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$Experiment_Metadata[,i]))))
     }
     updateSelectizeInput(session = session,inputId = 'Assay',choices=names(reactivevalue$SeuratObject@assays),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
@@ -62,7 +68,7 @@ observeEvent( input$submit, {
 
 observeEvent( input$SampleColumn, {
   if (!is.null(input$SampleColumn)&!is.null(reactivevalue$SeuratObject)){
-  updateSelectInput(session = session,inputId = 'SampletoSubset',choices=unique(reactivevalue$SeuratObject@meta.data[,input$SampleColumn]),selected = NULL)
+  updateSelectInput(session = session,inputId = 'SampletoSubset',choices=unique(reactivevalue$Experiment_Metadata[,input$SampleColumn]),selected = NULL)
 
 }
 })
@@ -75,17 +81,17 @@ ReductionListener <- reactive({
 observeEvent( ReductionListener(), {
   if (is.null(input$reduction)) return()
   if (!is.null(input$SampletoSubset)) {
-    kept=rownames(reactivevalue$SeuratObject@meta.data)[!reactivevalue$SeuratObject@meta.data[,input$SampleColumn]%in%input$SampletoSubset]
+    kept=rownames(reactivevalue$Experiment_Metadata)[!reactivevalue$Experiment_Metadata[,input$SampleColumn]%in%input$SampletoSubset]
     if (length(kept)!=0) {
       temp=subset(reactivevalue$SeuratObject,cells=kept)
-      output$tsne=renderPlot(DimPlot(temp,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
+      output$tsne=renderPlot(DimPlot(temp,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$Experiment_Metadata[,input$variabletosplit]))==1,yes = 1,no=2)))
 
     } else {
-      output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
+      output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$Experiment_Metadata[,input$variabletosplit]))==1,yes = 1,no=2)))
 
     }
   } else {
-    output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$SeuratObject@meta.data[,input$variabletosplit]))==1,yes = 1,no=2)))
+    output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$reduction,group.by = input$variabletogroup,split.by = input$variabletosplit,ncol=ifelse(length(unique(reactivevalue$Experiment_Metadata[,input$variabletosplit]))==1,yes = 1,no=2)))
 
   }
 
@@ -111,10 +117,10 @@ DGEListener <- reactive({
 
 observeEvent(DGEListener(), {
   if(!is.null(input$DGEGroup1)&&!is.null(input$DGEGroup2)){
-    CellRanch=reactivevalue$SeuratObject@meta.data[,
-      colnames(reactivevalue$SeuratObject@meta.data)[
-        !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-        &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
+    CellRanch=reactivevalue$Experiment_Metadata[,
+      colnames(reactivevalue$Experiment_Metadata)[
+        !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+        &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
       ]]
     Group1Wrangler=list()
     Group2Wrangler=list()
@@ -201,9 +207,9 @@ observeEvent(input$submitDGE, {
     #  }
     #}
 
-
     Results=FindMarkers(FindMarkerstemp,ident.1='Group1',ident.2='Group2',group.by='Group',
                         assay=input$Assay)
+
     Results$gene=rownames(Results)
     output$DifferentialExpressionAnalysisResults=renderDataTable(Results)
     output$downloadData <- downloadHandler(
