@@ -25,7 +25,7 @@ tabPanel("Upload Data",
                 multiple = FALSE,
                 accept = accepted
             ),
-            checkboxInput('LocalFile','Check if the file is already in the root directory and named as "Final.Analysis.rds"'),
+            selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
             actionButton(inputId = 'submit',label = 'Submit')
 
         ),

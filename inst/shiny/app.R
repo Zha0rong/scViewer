@@ -3,6 +3,7 @@ require(shinyjs)
 require(shinythemes)
 require(data.table)
 require(Seurat)
+require(SingleCellExperiment)
 
 ui <- navbarPage(
 
