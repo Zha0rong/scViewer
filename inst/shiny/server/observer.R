@@ -207,8 +207,10 @@ observeEvent(input$submitDGE, {
     #  }
     #}
 
-    Results=FindMarkers(FindMarkerstemp,ident.1='Group1',ident.2='Group2',group.by='Group',
-                        assay=input$Assay)
+      Results=FindMarkers(FindMarkerstemp,ident.1='Group1',ident.2='Group2',group.by='Group',
+                          assay=input$Assay)
+
+
 
     Results$gene=rownames(Results)
     output$DifferentialExpressionAnalysisResults=renderDataTable(Results)
