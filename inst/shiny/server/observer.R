@@ -1,10 +1,3 @@
-DGEListener <- reactive({
-  list(input$DGEGroup1,input$DGEGroup2)
-})
-
-ReductionListener <- reactive({
-  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
-})
 
 
 observeEvent( input$Seurat_Object, {
@@ -23,23 +16,25 @@ observeEvent( input$submit, {
       reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)
     }
     print('Finish Loading')
+    reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
-    reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL)
     print('Finish Loading Genes')
+
     updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$Experiment_Metadata)
                          [
       !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
       #&!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
-                         ,selected = NULL)
+    ,selected = NULL)
+
     print('Finish Loading Variables to Group')
     updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$Experiment_Metadata)
                          [
-    #  !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+      !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
     #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
     ,selected = 'ShinyGroup')
@@ -59,7 +54,22 @@ observeEvent( input$submit, {
     #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
     ,selected = NULL)
+
     print('Finish Loading Plot Group')
+
+    updateSelectizeInput(session = session,inputId = 'BarGraph1',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+                           #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
+                         ]
+                         ,selected = NULL)
+
+    updateSelectizeInput(session = session,inputId = 'BarGraph2',choices=colnames(reactivevalue$Experiment_Metadata)
+                         [
+                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
+                           #  &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
+                         ]
+                         ,selected = NULL)
 
     DGE_Group_Candidate=c()
     for (i in colnames(reactivevalue$Experiment_Metadata)[
@@ -76,17 +86,48 @@ observeEvent( input$submit, {
 }
 })
 
-observeEvent( input$SampleColumn, {
-  if (!is.null(input$SampleColumn)&!is.null(reactivevalue$SeuratObject)){
-  updateSelectInput(session = session,inputId = 'SampletoSubset',choices=unique(reactivevalue$Experiment_Metadata[,input$SampleColumn]),selected = NULL)
 
-}
+DGEListener <- reactive({
+  list(input$DGEGroup1,input$DGEGroup2)
+})
+
+ReductionListener <- reactive({
+  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
+})
+
+BarGraphListener <- reactive({
+  list(input$BarGraph1,input$BarGraph2)
 })
 
 
 
+observeEvent( input$SampleColumn, {
+  if (!is.null(input$SampleColumn)&!is.null(reactivevalue$SeuratObject)){
+  updateSelectInput(session = session,inputId = 'SampletoSubset',choices=unique(reactivevalue$Experiment_Metadata[,input$SampleColumn]),selected = NULL)
+  print("Finished loading SampletoSubset")
+}
+})
 
-observeEvent(ReductionListener, {
+
+observeEvent(BarGraphListener()
+  ,{
+    if (!is.null(input$BarGraph1)&!is.null(input$BarGraph2)&!is.null(reactivevalue$SeuratObject)) {
+      if (input$BarGraph1!=input$BarGraph2){
+      temp=data.frame(table(reactivevalue$Experiment_Metadata[,input$BarGraph1],reactivevalue$Experiment_Metadata[,input$BarGraph2]))
+      colnames(temp)=c("Variable1","Variable2",'CellNumber')#
+
+      output$BarPlot=renderPlot(ggplot(temp,aes(
+x=CellNumber,y=Variable1,fill=Variable2
+      ))+geom_bar(stat = 'identity',position = 'fill')+xlab('Cell Number')+ylab(input$BarGraph1)+labs(fill=input$BarGraph2) )
+}
+    }
+
+  }
+)
+
+
+observeEvent(ReductionListener(),
+             {
   if (is.null(input$reduction)) return()
   if (!is.null(input$SampletoSubset)) {
     kept=rownames(reactivevalue$Experiment_Metadata)[!reactivevalue$Experiment_Metadata[,input$SampleColumn]%in%input$SampletoSubset]
@@ -114,13 +155,30 @@ observeEvent( input$GenesToInterrogate, {
 
   output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$SeuratObject,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup,
                                        pt.size = ifelse(ncol(reactivevalue$SeuratObject)>1000,yes=0,no=NULL)))
-  output$RidgePlot=renderPlot(RidgePlot(reactivevalue$SeuratObject,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup
-                                       ))
+  output$RidgePlot=renderPlot(RidgePlot(reactivevalue$SeuratObject,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup))
+  if (length(input$GenesToInterrogate)==1) {
+    temp=summary(reactivevalue$SeuratObject@assays$RNA@data[input$GenesToInterrogate,])
+    globalstats=data.frame(t(as.matrix(temp)))
+    rownames(globalstats)=input$GenesToInterrogate
+    globalstats$gene=input$GenesToInterrogate
+  } else {
+    globalstats=list()
+    for (i in 1:length(input$GenesToInterrogate)) {
+      globalstats[[i]]=summary(reactivevalue$SeuratObject@assays$RNA@data[input$GenesToInterrogate[i],])
+    }
+    globalstats=do.call(rbind,globalstats)
+    globalstats=data.frame(globalstats)
+    rownames(globalstats)=input$GenesToInterrogate
+    globalstats$gene=input$GenesToInterrogate
+  }
+  output$GlobalStats=renderDataTable(globalstats)
+
 })
 
 
 
-observeEvent(DGEListener(), {
+observeEvent(DGEListener(),
+  {
   if(!is.null(input$DGEGroup1)&&!is.null(input$DGEGroup2)){
     CellRanch=reactivevalue$Experiment_Metadata[,
       colnames(reactivevalue$Experiment_Metadata)[

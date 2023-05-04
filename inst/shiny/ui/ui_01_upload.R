@@ -37,7 +37,9 @@ tabPanel("Upload Data",
 
                          ),
                 tabPanel('Data Distribution BarGraph',
-                         imageOutput('BarPlot')
+                         selectizeInput('BarGraph1','First Variable to interrogate distribution',choices=NULL,selected=NULL),
+                         selectizeInput('BarGraph2','Second Variable to interrogate distribution',choices=NULL,selected=NULL),
+                         plotOutput('BarPlot')
 
                 )
         )
