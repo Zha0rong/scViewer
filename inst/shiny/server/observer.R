@@ -16,8 +16,8 @@ observeEvent( input$submit, {
       reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)
     }
     print('Finish Loading')
-    reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
+    reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
