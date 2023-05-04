@@ -20,4 +20,5 @@ scViewer <- function(dev=FALSE) {
     options(shiny.autoreload=TRUE)
   }
   shiny::runApp(appDir, display.mode="normal")
+  print(getwd())
 }
