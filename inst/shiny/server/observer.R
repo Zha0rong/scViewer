@@ -29,7 +29,7 @@ observeEvent( input$submit, {
       !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
       #&!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
     ]
-    ,selected = NULL)
+    ,selected = 'ShinyGroup')
 
     print('Finish Loading Variables to Group')
     updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$Experiment_Metadata)
