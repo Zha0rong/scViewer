@@ -35,7 +35,11 @@ tabPanel("Upload Data",
                 tabPanel('Main Figure of the Dataset',
                          imageOutput('MainFigure')
 
-                         )
+                         ),
+                tabPanel('Data Distribution BarGraph',
+                         imageOutput('BarPlot')
+
+                )
         )
     )
 )

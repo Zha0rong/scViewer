@@ -1,3 +1,12 @@
+DGEListener <- reactive({
+  list(input$DGEGroup1,input$DGEGroup2)
+})
+
+ReductionListener <- reactive({
+  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
+})
+
+
 observeEvent( input$Seurat_Object, {
 
   if (is.null(input$Seurat_Object)) return()
@@ -16,6 +25,7 @@ observeEvent( input$submit, {
     print('Finish Loading')
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
+    output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
     reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
     updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL)
@@ -74,11 +84,9 @@ observeEvent( input$SampleColumn, {
 })
 
 
-ReductionListener <- reactive({
-  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
-})
 
-observeEvent( ReductionListener(), {
+
+observeEvent(ReductionListener, {
   if (is.null(input$reduction)) return()
   if (!is.null(input$SampletoSubset)) {
     kept=rownames(reactivevalue$Experiment_Metadata)[!reactivevalue$Experiment_Metadata[,input$SampleColumn]%in%input$SampletoSubset]
@@ -110,9 +118,6 @@ observeEvent( input$GenesToInterrogate, {
                                        ))
 })
 
-DGEListener <- reactive({
-  list(input$DGEGroup1,input$DGEGroup2)
-})
 
 
 observeEvent(DGEListener(), {

@@ -1,7 +1,7 @@
 
-tabPanel("Single Gene Expression Interrogator",
+tabPanel("Gene Expression Interrogator",
 
-         titlePanel("Single Gene Expression Interrogator"),
+         titlePanel("Gene Expression Interrogator"),
          sidebarLayout(
            sidebarPanel(
              selectInput('GenesToInterrogate','Enter the Gene of interest',choices = NULL,selected = NULL,multiple = T),
