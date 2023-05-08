@@ -26,6 +26,6 @@ scViewer <- function(dev=FALSE) {
     print('Empty')
     filelocation=''
   }
-  shinyOptions('filelocation',filelocation)
+  shinyOptions('filelocation'=filelocation)
  shiny::runApp(appDir, display.mode="normal")
 }
