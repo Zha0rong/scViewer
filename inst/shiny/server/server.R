@@ -11,7 +11,8 @@ reactivevalue=reactiveValues(object_location=NULL,
 
 print(filelocation)
 
-
+if (filelocation!='') {reactivevalue$object_location=filelocation}
+output$filelocation=filelocation
 source('server/observer.R',local = T)
 
 

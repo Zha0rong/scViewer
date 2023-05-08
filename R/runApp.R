@@ -23,7 +23,6 @@ scViewer <- function(dev=FALSE) {
   wd=getwd()
   filelocation=list.files(wd,full.names = T,pattern = '.rds',)
   if (length(filelocation)==0) {
-    print('Empty')
     filelocation=''
   }
   shinyOptions('filelocation'=filelocation)
