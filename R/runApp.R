@@ -10,20 +10,12 @@
 #' }
 #' @export
 
-scViewer <- function(dev=FALSE) {
+scViewer <- function(filelocation=NULL) {
 
   appDir <- system.file("shiny", package="scViewer")
   if (appDir == "") {
     stop("Could not find scViewer Try re-installing `scViewer`.",
          call. = FALSE)
-  }
-  if (dev) {
-    options(shiny.autoreload=TRUE)
-  }
-  wd=getwd()
-  filelocation=list.files(wd,full.names = T,pattern = '.rds',)
-  if (length(filelocation)==0) {
-    filelocation=''
   }
   shinyOptions('filelocation'=filelocation)
  shiny::runApp(appDir, display.mode="normal")

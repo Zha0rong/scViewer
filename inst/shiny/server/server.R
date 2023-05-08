@@ -9,9 +9,8 @@ reactivevalue=reactiveValues(object_location=NULL,
                              function_input_object_location=NULL,
                              Seurat_Object=NULL)
 
-print(filelocation)
 
-if (filelocation!='') {reactivevalue$object_location=filelocation}
+reactivevalue$object_location=filelocation
 
 
 
