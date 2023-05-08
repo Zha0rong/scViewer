@@ -20,9 +20,6 @@ ui <- navbarPage(
 )
 
 server <- function(input, output, session) {
-  filelocation = commandArgs()
-  commandArgs<-function(...) {filelocation}
-  print(filelocation)
   source(file.path("server/", "server.R"),  local = TRUE)$value
 }
 
