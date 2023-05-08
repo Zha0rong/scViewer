@@ -7,7 +7,6 @@ require(SingleCellExperiment)
 require(ggplot2)
 
 filelocation <- getShinyOption("filelocation")
-print(filelocation)
 ui <- navbarPage(
 
   title = "SingleViewer",

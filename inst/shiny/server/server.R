@@ -9,6 +9,7 @@ reactivevalue=reactiveValues(object_location=NULL,
                              function_input_object_location=NULL,
                              Seurat_Object=NULL)
 
+print(filelocation)
 
 
 source('server/observer.R',local = T)
