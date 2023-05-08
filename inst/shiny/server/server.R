@@ -12,7 +12,7 @@ reactivevalue=reactiveValues(object_location=NULL,
 print(filelocation)
 
 if (filelocation!='') {reactivevalue$object_location=filelocation}
-output$filelocation=filelocation
+output$filelocation=renderText(filelocation)
 source('server/observer.R',local = T)
 
 
