@@ -26,6 +26,7 @@ tabPanel("Upload Data",
                 accept = accepted
             ),
             selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
+            verbatimTextOutput('object_location'),
             actionButton(inputId = 'submit',label = 'Submit')
 
         ),

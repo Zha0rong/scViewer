@@ -6,8 +6,13 @@ library(SummarizedExperiment)
 
 
 reactivevalue=reactiveValues(object_location=NULL,
+                             function_input_object_location=NULL,
                              Seurat_Object=NULL)
-
+filelocation = commandArgs()
+if (filelocation!='') {
+  reactivevalue$object_location=filelocation
+}
+print(filelocation)
 
 source('server/observer.R',local = T)
 
