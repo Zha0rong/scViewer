@@ -26,7 +26,6 @@ scViewer <- function(dev=FALSE) {
     print('Empty')
     filelocation=''
   }
-  commandArgs<-function(...) {filelocation}
-
+  getShinyOption(filelocation=filelocation)
  shiny::runApp(appDir, display.mode="normal")
 }
