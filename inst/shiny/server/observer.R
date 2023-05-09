@@ -20,7 +20,11 @@ observeEvent( input$submit, {
     incProgress(1/n,detail = 'Start Loading')
 
     if (input$objecttype=='SingleCellExperiment') {
-      reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)
+      tryCatch({reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)},
+               error=function(cond) {
+                 message('This is not a SingleCellExperiment Object')
+               }
+               )
     }
     incProgress(1/n,detail = 'Finish Loading')
 
