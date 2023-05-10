@@ -19,13 +19,13 @@ observeEvent( input$submit, {
     reactivevalue$SeuratObject=readRDS(reactivevalue$object_location)
     incProgress(1/n,detail = 'Start Loading')
 
-    if (input$objecttype=='SingleCellExperiment') {
-      tryCatch({reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)},
+
+    tryCatch({reactivevalue$SeuratObject=as.Seurat(reactivevalue$SeuratObject)},
                error=function(cond) {
                  message('This is not a SingleCellExperiment Object')
                }
-               )
-    }
+    )
+
     incProgress(1/n,detail = 'Finish Loading')
 
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
