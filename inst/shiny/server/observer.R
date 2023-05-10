@@ -33,7 +33,7 @@ observeEvent( input$submit, {
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject))
     updateSelectizeInput(session = session,inputId = 'reduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
-    updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL)
+    updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL,server=T)
     incProgress(1/n,detail = 'Finish parsing Genes')
 
     updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$Experiment_Metadata)
@@ -107,17 +107,9 @@ observeEvent( input$submit, {
 )
 
 
-DGEListener <- reactive({
-  list(input$DGEGroup1,input$DGEGroup2)
-})
 
-ReductionListener <- reactive({
-  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
-})
 
-BarGraphListener <- reactive({
-  list(input$BarGraph1,input$BarGraph2)
-})
+
 
 
 
@@ -127,7 +119,9 @@ observeEvent( input$SampleColumn, {
 }
 })
 
-
+BarGraphListener <- reactive({
+  list(input$BarGraph1,input$BarGraph2)
+})
 observeEvent(BarGraphListener()
   ,{
     if (!is.null(input$BarGraph1)&!is.null(input$BarGraph2)&!is.null(reactivevalue$SeuratObject)) {
@@ -144,7 +138,9 @@ x=CellNumber,y=Variable1,fill=Variable2
   }
 )
 
-
+ReductionListener <- reactive({
+  list(input$reduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset)
+})
 observeEvent(ReductionListener(),
              {
   if (is.null(input$reduction)) return()
@@ -165,6 +161,7 @@ observeEvent(ReductionListener(),
 
 
 })
+
 
 
 observeEvent( input$GenesToInterrogate, {
@@ -195,6 +192,10 @@ observeEvent( input$GenesToInterrogate, {
 })
 
 
+DGEListener <- reactive({
+  list(input$DGEGroup1,input$DGEGroup2)
+})
+
 
 observeEvent(DGEListener(),
   {
@@ -218,6 +219,7 @@ observeEvent(DGEListener(),
         }
       },
                error=function(err){
+                 print('Error')
                })
 
 
@@ -235,6 +237,7 @@ observeEvent(DGEListener(),
         }
       },
       error=function(err){
+        print('Error')
       })
     }
 
@@ -272,13 +275,22 @@ observeEvent(DGEListener(),
     }
 })
 
+
+
 observeEvent(input$submitDGE, {
   if (all(reactivevalue$analysis[,'CellNumber']!=0)) {
     FindMarkerstemp=reactivevalue$SeuratObject
     DefaultAssay(FindMarkerstemp)=input$Assay
+    withProgress(message = 'Start to do differential expression analysis',value = 0, {
+
+      n=3
     FindMarkerstemp=subset(FindMarkerstemp,cells=unique(c(reactivevalue$Group1Wrangled,
                                                           reactivevalue$Group2Wrangled)))
+    incProgress(1/n,detail = 'Start Data Normalization')
+
     FindMarkerstemp=NormalizeData(FindMarkerstemp)
+    incProgress(1/n,detail = 'Start Differential Expression Analysis')
+
     FindMarkerstemp@meta.data$Group=ifelse(rownames(FindMarkerstemp@meta.data)%in%reactivevalue$Group1Wrangled,
                                            yes='Group1',no='Group2')
     #for (i in 1:nrow(FindMarkerstemp@meta.data)) {
@@ -293,7 +305,8 @@ observeEvent(input$submitDGE, {
                           assay=input$Assay)
 
 
-
+    incProgress(1/n,detail = 'Finish Differential Expression Analysis')
+    })
     Results$gene=rownames(Results)
     output$DifferentialExpressionAnalysisResults=renderDataTable(Results)
     output$downloadData <- downloadHandler(
@@ -309,7 +322,6 @@ observeEvent(input$submitDGE, {
 
     reactivevalue$DifferentialExpressionAnalysisResults=Results
   }
-  output$volcano=renderPlot((volcano.plot(Results)))
 
 })
 
