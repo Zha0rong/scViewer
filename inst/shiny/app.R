@@ -8,7 +8,6 @@ require(ggplot2)
 
 filelocation <- getShinyOption("filelocation")
 ui <- navbarPage(
-
   title = "SingleViewer",
   id="SingleViewer",
   fluid=TRUE,

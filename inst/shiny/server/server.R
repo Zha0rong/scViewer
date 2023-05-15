@@ -18,7 +18,6 @@ output$object_location=renderText(ifelse(is.null(reactivevalue$object_location),
 
 observe({if (!is.null(reactivevalue$object_location)) {
   disable("Seurat_Object")
-  disable("submit")
 
 
 
