@@ -15,7 +15,7 @@ output$object_location=renderText(ifelse(is.null(reactivevalue$object_location),
                                          yes='No File Input, Use Upload data function.',
                                   no='File already uploaded, loading now.'))
 
-observe({if (!is.null(reactivevalue$object_location)) {
+observe({if (!is.null(reactivevalue$object_location)&is.null(reactivevalue$SeuratObject)) {
   disable("Seurat_Object")
   disable("submit")
   if (!is.null(reactivevalue$object_location)){
