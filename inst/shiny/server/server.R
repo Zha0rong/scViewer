@@ -15,10 +15,10 @@ output$object_location=renderText(ifelse(is.null(reactivevalue$object_location),
                                          yes='No File Input, Use Upload data function.',
                                   no='File already uploaded, loading now.'))
 
-observe({if (!is.null(reactivevalue$object_location)&is.null(reactivevalue$SeuratObject)) {
+observe({if (!is.null(reactivevalue$object_location)) {
   disable("Seurat_Object")
   disable("submit")
-  if (!is.null(reactivevalue$object_location)){
+  if (is.null(reactivevalue$SeuratObject)){
     withProgress(message = 'Load Data Object',value = 0, {
 
       n=8
