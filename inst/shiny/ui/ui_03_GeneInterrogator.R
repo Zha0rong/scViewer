@@ -26,7 +26,8 @@ tabPanel("Ridge Plot",
          imageOutput('RidgePlot')
 ),
 tabPanel('Global Expression Statistics',
-         DT::dataTableOutput('GlobalStats')
+         DT::dataTableOutput('GlobalStats'),
+         downloadButton('Gene.Expression.Statistics.downloadData','Download')
          )
 
                          )

@@ -359,7 +359,17 @@ observeEvent( GenesToInterrogateListener(), {
 
 
   output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
-
+  reactivevalue$GeneStats=globalstats
+  output$Gene.Expression.Statistics.downloadData <- downloadHandler(
+    filename = function() {
+      # Use the selected dataset as the suggested file name
+      paste0("Gene.Expression.Statistics", ".tsv")
+    },
+    content = function(file) {
+      # Write the dataset to the `file` that will be downloaded
+      write.table(reactivevalue$GeneStats, file,sep = '\t',quote=F)
+    }
+  )
 })
 
 
@@ -488,6 +498,9 @@ observeEvent(input$submitDGE, {
     })
     Results$gene=rownames(Results)
     output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
+
+
+    reactivevalue$DifferentialExpressionAnalysisResults=Results
     output$downloadData <- downloadHandler(
       filename = function() {
         # Use the selected dataset as the suggested file name
@@ -495,11 +508,9 @@ observeEvent(input$submitDGE, {
       },
       content = function(file) {
         # Write the dataset to the `file` that will be downloaded
-        write.table(Results, file,sep = '\t',quote=F)
+        write.table(reactivevalue$DifferentialExpressionAnalysisResults, file,sep = '\t',quote=F)
       }
     )
-
-    reactivevalue$DifferentialExpressionAnalysisResults=Results
   }
 
 })
