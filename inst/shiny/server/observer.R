@@ -295,12 +295,11 @@ observeEvent( GenesToInterrogateListener(), {
       globalstat=list()
 
       gene=input$GenesToInterrogate[i]
-
-      for (j in 1:length(unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])))) {
+      variable=unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))
+      for (j in 1:length(variable)) {
         temp=summary(reactivevalue$SeuratObject@assays$RNA@data[gene,colnames(reactivevalue$SeuratObject@assays$RNA@data)%in%
                                                                   rownames(reactivevalue$SeuratObject@meta.data)[
-                                                                    as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])==
-                                                                      unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))[j]
+                                                                    as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])==variable[j]
                                                                   ]])
 
         stat=data.frame(t(as.matrix(temp)))
@@ -313,7 +312,7 @@ observeEvent( GenesToInterrogateListener(), {
         )
         rownames(stat)=gene
         stat$gene=gene
-        stat$Group=unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))[j]
+        stat$Group=variable[j]
         globalstat[[j]]=data.frame(stat)
 
       }
