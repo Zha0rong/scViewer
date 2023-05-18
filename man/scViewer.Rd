@@ -4,19 +4,14 @@
 \alias{scViewer}
 \title{Run scViewer shiny app}
 \usage{
-scViewer(dev = FALSE)
+scViewer(filelocation = NULL)
 }
 \arguments{
-\item{dev}{Run the applicaiton in developer mode}
+\item{filelocation}{The directory of sce object or seurat object. If not specific the file can be uploaded inside the app.}
 }
 \value{
 The shiny app will open
 }
 \description{
 Run scViewer shiny app
-}
-\examples{
-\dontrun{
-scViewer()
-}
 }
