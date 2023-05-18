@@ -88,10 +88,6 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
 
 })
 
-
-
-
-
 observeEvent( input$Seurat_Object, {
 
   if (is.null(input$Seurat_Object)) return()
@@ -219,14 +215,6 @@ observeEvent(BarGraphListener()
              }
 )
 
-
-
-
-
-
-
-
-
 ReductionListener <- reactive({
   list(input$DRreduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset,input$DRLabel)
 })
@@ -250,27 +238,15 @@ observeEvent(ReductionListener(),
                    }
 
                  } else {
-                   print(input$variabletosplit)
-
                    output$tsne=renderPlot(DimPlot(reactivevalue$SeuratObject,reduction = input$DRreduction,
                                                   group.by = input$variabletogroup,split.by = input$variabletosplit,
                                                   ncol=ifelse(length(unique(reactivevalue$Experiment_Metadata[,input$variabletosplit]))==1,yes = 1,no=2),
                                                   raster = F,label = input$DRLabel))
 
-
                  }
                }
 
              })
-
-
-
-
-
-
-
-
-
 
 GenesToInterrogateListener <- reactive({
   list(input$GenesToInterrogate,input$PlotGroup,input$GIreduction,input$GILabel)
@@ -353,11 +329,6 @@ observeEvent( GenesToInterrogateListener(), {
     globalstats$gene=input$GenesToInterrogate
   }
 
-
-
-
-
-
   output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
   reactivevalue$GeneStats=globalstats
   output$Gene.Expression.Statistics.downloadData <- downloadHandler(
@@ -386,7 +357,7 @@ observeEvent(DGEListener(),
                  CellRanch=reactivevalue$Experiment_Metadata[,
                                                              colnames(reactivevalue$Experiment_Metadata)[
                                                                !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                                                               #&!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
+                                                               &!grepl("_res.",colnames(reactivevalue$Experiment_Metadata))
                                                              ]]
                  Group1Wrangler=list()
                  Group2Wrangler=list()
@@ -451,19 +422,8 @@ observeEvent(DGEListener(),
 
                  output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T
                   )
-
-
-
-
-
                }
              })
-
-
-
-
-
-
 
 
 observeEvent(input$submitDGE, {
@@ -482,14 +442,6 @@ observeEvent(input$submitDGE, {
 
       FindMarkerstemp@meta.data$Group=ifelse(rownames(FindMarkerstemp@meta.data)%in%reactivevalue$Group1Wrangled,
                                              yes='Group1',no='Group2')
-      #for (i in 1:nrow(FindMarkerstemp@meta.data)) {
-      #  if (rownames(FindMarkerstemp@meta.data)[i]%in%reactivevalue$Group1Wrangled) {
-      #    FindMarkerstemp@meta.data$Group[i]='Group1'
-      #  } else if (rownames(FindMarkerstemp@meta.data)[i]%in%reactivevalue$Group2Wrangled) {
-      #    FindMarkerstemp@meta.data$Group[i]='Group2'
-      #  }
-      #}
-
       Results=FindMarkers(FindMarkerstemp,ident.1='Group1',ident.2='Group2',group.by='Group',
                           assay=input$Assay)
 
