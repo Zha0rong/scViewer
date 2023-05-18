@@ -26,7 +26,7 @@ tabPanel("Ridge Plot",
          imageOutput('RidgePlot')
 ),
 tabPanel('Global Expression Statistics',
-         dataTableOutput('GlobalStats')
+         DT::dataTableOutput('GlobalStats')
          )
 
                          )

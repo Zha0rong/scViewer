@@ -14,8 +14,8 @@ tabPanel("Differential Expression Analysis",
            mainPanel(
              tabsetPanel(
                tabPanel("Differential Expression Analysis Results",
-                        dataTableOutput('GroupNumber'),
-                        dataTableOutput('DifferentialExpressionAnalysisResults'),
+                        DT::dataTableOutput('GroupNumber'),
+                        DT::dataTableOutput('DifferentialExpressionAnalysisResults'),
                         downloadButton("downloadData", "Download")
                )
              )

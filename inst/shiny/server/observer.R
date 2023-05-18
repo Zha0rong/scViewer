@@ -287,22 +287,78 @@ observeEvent( GenesToInterrogateListener(), {
   output$RidgePlot=renderPlot(RidgePlot(reactivevalue$temp,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup))
 
   if (length(input$GenesToInterrogate)==1) {
-    temp=summary(reactivevalue$SeuratObject@assays$RNA@data[input$GenesToInterrogate,])
-    globalstats=data.frame(t(as.matrix(temp)))
-    rownames(globalstats)=input$GenesToInterrogate
-    globalstats$gene=input$GenesToInterrogate
-  } else {
     globalstats=list()
-    for (i in 1:length(input$GenesToInterrogate)) {
-      globalstats[[i]]=summary(reactivevalue$SeuratObject@assays$RNA@data[input$GenesToInterrogate[i],])
+    for (i in 1:length(unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))) {
+      temp=summary(reactivevalue$SeuratObject@assays$RNA@data[input$GenesToInterrogate,colnames(reactivevalue$SeuratObject@assays$RNA@data)%in%
+                                                                rownames(reactivevalue$SeuratObject@meta.data)[
+                                                                  reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]==
+                                                                    unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])[i]
+                                                                ]])
+      globalstat=data.frame(t(as.matrix(temp)))
+      colnames(globalstat)=c('Minimum',
+                              'Quantile 25th',
+                              'Median',
+                              'Mean',
+                              'Quantile 75th',
+                              'Maximum'
+      )
+      rownames(globalstat)=input$GenesToInterrogate
+      globalstat$gene=input$GenesToInterrogate
+      globalstat$Group=unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])[i]
+      globalstats[[i]]=data.frame(globalstat)
     }
     globalstats=do.call(rbind,globalstats)
     globalstats=data.frame(globalstats)
-    rownames(globalstats)=input$GenesToInterrogate
+    rownames(globalstats)=seq(1,nrow(globalstats))
+    globalstats=globalstats[,c(ncol(globalstats),ncol(globalstats)-1,seq(1,ncol(globalstats)-2))]
+
+
+  } else {
+    globalstats=list()
+    for (i in 1:length(input$GenesToInterrogate)) {
+      globalstat=list()
+
+      gene=input$GenesToInterrogate[i]
+
+      for (j in 1:length(unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))) {
+        temp=summary(reactivevalue$SeuratObject@assays$RNA@data[gene,colnames(reactivevalue$SeuratObject@assays$RNA@data)%in%
+                                                                  rownames(reactivevalue$SeuratObject@meta.data)[
+                                                                    reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]==
+                                                                      unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])[j]
+                                                                  ]])
+
+        stat=data.frame(t(as.matrix(temp)))
+        colnames(stat)=c('Minimum',
+                               'Quantile 25th',
+                               'Median',
+                               'Mean',
+                               'Quantile 75th',
+                               'Maximum'
+        )
+        rownames(stat)=gene
+        stat$gene=gene
+        stat$Group=unique(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])[j]
+        globalstat[[j]]=data.frame(stat)
+
+      }
+      globalstat=do.call(rbind,globalstat)
+      globalstat=data.frame(globalstat)
+      globalstat=globalstat[,c(ncol(globalstat),ncol(globalstat)-1,seq(1,ncol(globalstat)-2))]
+
+      globalstats[[i]]=globalstat
+    }
+    globalstats=do.call(rbind,globalstats)
+    globalstats=data.frame(globalstats)
+    rownames(globalstats)=seq(1,nrow(globalstats))
     globalstats$gene=input$GenesToInterrogate
   }
 
-  output$GlobalStats=renderDataTable(globalstats)
+
+
+
+
+
+  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 't'), filter = list(position = "top")),server = T)
 
 })
 
@@ -383,7 +439,7 @@ observeEvent(DGEListener(),
                                                                                           Group2Wrangled[!Group2Wrangled%in%intersect(Group1Wrangled,Group2Wrangled)]
                  )]
 
-                 output$GroupNumber=renderDataTable(analysis)
+                 output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 't'), filter = list(position = "top")),server = T)
 
 
 
@@ -430,7 +486,7 @@ observeEvent(input$submitDGE, {
       incProgress(1/n,detail = 'Finish Differential Expression Analysis')
     })
     Results$gene=rownames(Results)
-    output$DifferentialExpressionAnalysisResults=renderDataTable(Results)
+    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 't'), filter = list(position = "top")),server = T)
     output$downloadData <- downloadHandler(
       filename = function() {
         # Use the selected dataset as the suggested file name
