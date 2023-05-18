@@ -358,7 +358,14 @@ observeEvent( GenesToInterrogateListener(), {
 
 
 
-  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 't'), filter = list(position = "top")),server = T)
+  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T
+  ,options = list(
+    scrollX=TRUE,
+    autoWidth = TRUE,
+    paging=TRUE,
+    searching=FALSE,
+    ordering=TRUE
+  ))
 
 })
 
@@ -439,7 +446,13 @@ observeEvent(DGEListener(),
                                                                                           Group2Wrangled[!Group2Wrangled%in%intersect(Group1Wrangled,Group2Wrangled)]
                  )]
 
-                 output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 't'), filter = list(position = "top")),server = T)
+                 output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T,options = list(
+                   scrollX=TRUE,
+                   autoWidth = TRUE,
+                   paging=TRUE,
+                   searching=FALSE,
+                   ordering=TRUE
+                 ))
 
 
 
@@ -486,7 +499,13 @@ observeEvent(input$submitDGE, {
       incProgress(1/n,detail = 'Finish Differential Expression Analysis')
     })
     Results$gene=rownames(Results)
-    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 't'), filter = list(position = "top")),server = T)
+    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T,options = list(
+      scrollX=TRUE,
+      autoWidth = TRUE,
+      paging=TRUE,
+      searching=FALSE,
+      ordering=TRUE
+    ))
     output$downloadData <- downloadHandler(
       filename = function() {
         # Use the selected dataset as the suggested file name
