@@ -291,15 +291,17 @@ observeEvent( GenesToInterrogateListener(), {
 
   } else {
     globalstats=list()
-    for (i in 1:length(input$GenesToInterrogate)) {
-      globalstat=list()
+    variables=unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))
+    genes=input$GenesToInterrogate
+    count=1
+    for (i in 1:length(variables)) {
 
-      gene=input$GenesToInterrogate[i]
-      variable=unique(as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]]))
-      for (j in 1:length(variable)) {
+      for (j in 1:length(genes)) {
+        gene=genes[j]
+        variable=variables[i]
         temp=summary(reactivevalue$SeuratObject@assays$RNA@data[gene,colnames(reactivevalue$SeuratObject@assays$RNA@data)%in%
                                                                   rownames(reactivevalue$SeuratObject@meta.data)[
-                                                                    as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])==variable[j]
+                                                                    as.character(reactivevalue$SeuratObject@meta.data[[input$PlotGroup]])==variable
                                                                   ]])
 
         stat=data.frame(t(as.matrix(temp)))
@@ -312,20 +314,16 @@ observeEvent( GenesToInterrogateListener(), {
         )
         rownames(stat)=gene
         stat$gene=gene
-        stat$Group=variable[j]
-        globalstat[[j]]=data.frame(stat)
-
+        stat$Group=variable
+        stat=stat[,c(ncol(stat),ncol(stat)-1,seq(1,ncol(stat)-2))]
+        
+        globalstats[[count]]=data.frame(stat)
+        count=count+1
       }
-      globalstat=do.call(rbind,globalstat)
-      globalstat=data.frame(globalstat)
-      globalstat=globalstat[,c(ncol(globalstat),ncol(globalstat)-1,seq(1,ncol(globalstat)-2))]
-
-      globalstats[[i]]=globalstat
-    }
+  }
     globalstats=do.call(rbind,globalstats)
     globalstats=data.frame(globalstats)
     rownames(globalstats)=seq(1,nrow(globalstats))
-    globalstats$gene=input$GenesToInterrogate
   }
 
   output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = F)
