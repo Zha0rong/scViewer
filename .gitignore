@@ -9,3 +9,4 @@ inst/.DS_Store
 inst/shiny/.DS_Store
 inst/shiny/.DS_Store
 PBMC.rds
+*.Rproj
