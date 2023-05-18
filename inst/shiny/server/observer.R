@@ -326,7 +326,7 @@ observeEvent( GenesToInterrogateListener(), {
     rownames(globalstats)=seq(1,nrow(globalstats))
   }
 
-  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = F)
+  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
   reactivevalue$GeneStats=globalstats
   output$Gene.Expression.Statistics.downloadData <- downloadHandler(
     filename = function() {
@@ -446,7 +446,7 @@ observeEvent(input$submitDGE, {
       incProgress(1/n,detail = 'Finish Differential Expression Analysis')
     })
     Results$gene=rownames(Results)
-    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = F)
+    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
 
 
     reactivevalue$DifferentialExpressionAnalysisResults=Results
