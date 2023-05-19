@@ -2,22 +2,15 @@ accepted = c(".rds",
              ".rdata",
              ".h5seurat",
              ".csv")
-tabPanel("Upload Data",
-    useShinyjs(),
-    tags$div(
-        class = "jumbotron",
-        tags$div(
+tabPanel("Upload Data",useShinyjs(),
+    tags$div(class = "jumbotron",tags$div(
             class = "container",
             fluidRow(column(7, h2("SingleViewer"))),
             tags$p("Viewer and Analyzer of Single Cell Data"),
-            uiOutput("tab")
-
-        )
-    ),
-    titlePanel("Upload Data"),
-
-    sidebarLayout(
-        sidebarPanel(
+            uiOutput("tab"))),
+    h2("Upload Data",id='UploadDataTitle'),
+    #titlePanel("Upload Data")
+    sidebarLayout(sidebarPanel(id='UploadBar',
             h3("Upload Seurat Object"),
             fileInput(
                 inputId = "Seurat_Object",
@@ -27,30 +20,32 @@ tabPanel("Upload Data",
             ),
             #selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
             verbatimTextOutput('object_location'),
-            actionButton(inputId = 'submit',label = 'Submit')
+            actionButton(inputId = 'submit',label = 'Submit'),width = 3
 
         ),
-
         mainPanel(
-            tabsetPanel(
-                tabPanel('Main Figure of the Dataset',
-                         imageOutput('MainFigure')
-
-                         ),
-                tabPanel('Data Distribution BarGraph',
-                         selectizeInput('BarGraph1','First Variable to interrogate distribution',choices=NULL,selected=NULL),
-                         selectizeInput('BarGraph2','Second Variable to interrogate distribution',choices=NULL,selected=NULL),
-                         plotOutput('BarPlot')
-
-                ),
-                tabPanel('Annotate Data',
-                        selectizeInput('Reference_Column','Reference Column',choices=NULL,selected=NULL),
-                        textInput('AnnotationName',label = 'Name of new column',value = NULL),
-                        DT::dataTableOutput('AnnotationTable'),
-                        actionButton('AddAnnotation',label = 'Add Annotation')
-                        
+          tabsetPanel(
+            tabPanel('Main Figure of the Dataset',
+                     imageOutput('MainFigure')
+                     
+            ),
+            tabPanel('Data Distribution BarGraph',
+                     selectizeInput('BarGraph1','First Variable to interrogate distribution',choices=NULL,selected=NULL),
+                     selectizeInput('BarGraph2','Second Variable to interrogate distribution',choices=NULL,selected=NULL),
+                     plotOutput('BarPlot')
+                     
+            ),
+            tabPanel('Annotate Data',
+                     selectizeInput('Reference_Column','Reference Column',choices=NULL,selected=NULL),
+                     textInput('AnnotationName',label = 'Name of new column',value = NULL),
+                     DT::dataTableOutput('AnnotationTable'),
+                     actionButton('AddAnnotation',label = 'Add Annotation')
+                     
+            )
+          )
         )
-    )
+
+#placeholcer
 )
-)
+
 )
