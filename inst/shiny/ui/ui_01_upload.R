@@ -42,8 +42,15 @@ tabPanel("Upload Data",
                          selectizeInput('BarGraph2','Second Variable to interrogate distribution',choices=NULL,selected=NULL),
                          plotOutput('BarPlot')
 
-                )
+                ),
+                tabPanel('Annotate Data',
+                        selectizeInput('Reference_Column','Reference Column',choices=NULL,selected=NULL),
+                        textInput('AnnotationName',label = 'Name of new column',value = NULL),
+                        DT::dataTableOutput('AnnotationTable'),
+                        actionButton('AddAnnotation',label = 'Add Annotation')
+                        
         )
     )
+)
 )
 )

@@ -20,64 +20,51 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
 
     reactivevalue$SeuratObject$ShinyGroup='SCViewer'
     reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
+    reactivevalue$metadatacolumn=colnames(reactivevalue$Experiment_Metadata)[!grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))]
+    
+    reactivevalue$assays=names(reactivevalue$SeuratObject@assays)
+    reactivevalue$reduction=names((reactivevalue$SeuratObject@reductions))
+    reactivevalue$genes=rownames(reactivevalue$SeuratObject)
+    
+    
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject,raster = F))
-    updateSelectizeInput(session = session,inputId = 'DRreduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
-    updateSelectizeInput(session = session,inputId = 'GIreduction',choices =names((reactivevalue$SeuratObject@reductions)),selected = NULL)
+    updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
+    
+    updateSelectizeInput(session = session,inputId = 'DRreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
+    updateSelectizeInput(session = session,inputId = 'GIreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
 
-    updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =rownames(reactivevalue$SeuratObject),selected = NULL,server=T)
+    updateSelectizeInput(session = session,inputId = 'GenesToInterrogate',choices =reactivevalue$genes,selected = NULL,server=T)
 
     incProgress(1/n,detail = 'Finish parsing Genes')
 
-    updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ]
+    updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=reactivevalue$metadatacolumn
                          ,selected = 'ShinyGroup')
 
     incProgress(1/n,detail = 'Finish Parsing Columns step 1')
 
-    updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ]
+    updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=reactivevalue$metadatacolumn
                          ,selected = 'ShinyGroup')
     incProgress(1/n,detail = 'Finish Parsing Columns step 2')
 
-    updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ]
+    updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=reactivevalue$metadatacolumn
                          ,selected = NULL)
     incProgress(1/n,detail = 'Finish Parsing Columns step 3')
 
-    updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ])
+    updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=reactivevalue$metadatacolumn)
 
     incProgress(1/n,detail = 'Finish Parsing Columns step 4')
 
-    updateSelectizeInput(session = session,inputId = 'BarGraph1',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ]
-                         ,selected = NULL)
+    updateSelectizeInput(session = session,inputId = 'BarGraph1',choices=reactivevalue$metadatacolumn,selected = NULL)
 
-    updateSelectizeInput(session = session,inputId = 'BarGraph2',choices=colnames(reactivevalue$Experiment_Metadata)
-                         [
-                           !grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))
-                         ]
+    updateSelectizeInput(session = session,inputId = 'BarGraph2',choices=reactivevalue$metadatacolumn
                          ,selected = NULL)
 
     DGE_Group_Candidate=c()
-    for (i in colnames(reactivevalue$SeuratObject@meta.data)[
-      !grepl("nCount",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("nFeature",colnames(reactivevalue$SeuratObject@meta.data))&!grepl("^percent.",colnames(reactivevalue$SeuratObject@meta.data))
-      &!grepl("_res.",colnames(reactivevalue$SeuratObject@meta.data))
-    ]) {
+    for (i in reactivevalue$metadatacolumn) {
       DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$Experiment_Metadata[,i]))))
     }
-    updateSelectizeInput(session = session,inputId = 'Assay',choices=names(reactivevalue$SeuratObject@assays),selected = NULL)
+    updateSelectizeInput(session = session,inputId = 'Assay',choices=reactivevalue$assays,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
     incProgress(1/n,detail = 'Finish Parsing Columns step 5')
@@ -94,7 +81,7 @@ observeEvent( input$Seurat_Object, {
   reactivevalue$object_location=input$Seurat_Object$datapath
   output$object_location=renderText(reactivevalue$object_location)
 
-  })
+})
 
 
 observeEvent( input$submit, {
@@ -199,8 +186,7 @@ observeEvent( input$SampleColumn, {
 BarGraphListener <- reactive({
   list(input$BarGraph1,input$BarGraph2)
 })
-observeEvent(BarGraphListener()
-             ,{
+observeEvent(BarGraphListener(),{
                if ((input$BarGraph1%in%colnames(reactivevalue$Experiment_Metadata))&(input$BarGraph2%in%colnames(reactivevalue$Experiment_Metadata))&!is.null(reactivevalue$SeuratObject)) {
                  if (input$BarGraph1!=input$BarGraph2){
                    temp=data.frame(table(reactivevalue$Experiment_Metadata[,input$BarGraph1],reactivevalue$Experiment_Metadata[,input$BarGraph2]))
@@ -212,14 +198,12 @@ observeEvent(BarGraphListener()
                  }
                }
 
-             }
-)
+             })
 
 ReductionListener <- reactive({
   list(input$DRreduction,input$variabletogroup,input$variabletosplit,input$SampletoSubset,input$DRLabel)
 })
-observeEvent(ReductionListener(),
-             {
+observeEvent(ReductionListener(),{
                if (is.null(input$DRreduction)) return()
                if (input$variabletosplit%in%colnames(reactivevalue$Experiment_Metadata)){
                  if (!is.null(input$SampletoSubset)) {
@@ -326,7 +310,7 @@ observeEvent( GenesToInterrogateListener(), {
     rownames(globalstats)=seq(1,nrow(globalstats))
   }
 
-  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
+  output$GlobalStats=DT::renderDataTable(DT::datatable(globalstats,editable = F, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
   reactivevalue$GeneStats=globalstats
   output$Gene.Expression.Statistics.downloadData <- downloadHandler(
     filename = function() {
@@ -348,8 +332,7 @@ DGEListener <- reactive({
 })
 
 
-observeEvent(DGEListener(),
-             {
+observeEvent(DGEListener(),{
                if(!is.null(input$DGEGroup1)&&!is.null(input$DGEGroup2)){
                  CellRanch=reactivevalue$Experiment_Metadata[,
                                                              colnames(reactivevalue$Experiment_Metadata)[
@@ -417,7 +400,7 @@ observeEvent(DGEListener(),
                                                                                           Group2Wrangled[!Group2Wrangled%in%intersect(Group1Wrangled,Group2Wrangled)]
                  )]
 
-                 output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T
+                 output$GroupNumber=DT::renderDataTable(DT::datatable((analysis), options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T
                   )
                }
              })
@@ -446,7 +429,7 @@ observeEvent(input$submitDGE, {
       incProgress(1/n,detail = 'Finish Differential Expression Analysis')
     })
     Results$gene=rownames(Results)
-    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'), filter = list(position = "top")),server = T)
+    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
 
 
     reactivevalue$DifferentialExpressionAnalysisResults=Results
@@ -464,13 +447,71 @@ observeEvent(input$submitDGE, {
 
 })
 
+AnnotationListener=reactive({list(input$Reference_Column,input$AnnotationName)})
+observeEvent(AnnotationListener(),{
+  if (is.null(input$Reference_Column)|is.null(reactivevalue$Experiment_Metadata)) return()
+  reactivevalue$annotationdata=data.frame(referencecolumn=unique(as.character(reactivevalue$Experiment_Metadata[[input$Reference_Column]])),
+                                          row.names = unique(as.character(reactivevalue$Experiment_Metadata[[input$Reference_Column]])))
+  reactivevalue$annotationdata$NewAnnotation=''
+  reactivevalue$annotationdata_record=reactivevalue$annotationdata
+  output$AnnotationTable=DT::renderDataTable(DT::datatable(reactivevalue$annotationdata,editable = list(target = "cell", disable = list(columns = c(0))),rownames= FALSE))
+})
 
 
+observeEvent((input$AnnotationTable_cell_edit), {
+  print(input$AnnotationTable_cell_edit)
+  reactivevalue$annotationdata_record[input$AnnotationTable_cell_edit$row,'NewAnnotation']=input$AnnotationTable_cell_edit$value
+  print(reactivevalue$annotationdata)
+})
 
+observeEvent(input$AddAnnotation,{
+  previousIdents=Idents(reactivevalue$SeuratObject)
+  NewIdents=reactivevalue$annotationdata_record$NewAnnotation
 
+  names(NewIdents)=reactivevalue$annotationdata_record$referencecolumn
+  print(reactivevalue$annotationdata_record)
+  print(input$AnnotationName)
+  
+  Idents(reactivevalue$SeuratObject)=input$Reference_Column
+  print(NewIdents)
+  reactivevalue$SeuratObject=RenameIdents(reactivevalue$SeuratObject,NewIdents)
+  if (is.null(input$AnnotationName)) {
+    reactivevalue$SeuratObject@meta.data[[paste0('New Annotation Column',ncol(reactivevalue$SeuratObject@meta.data))]]=Idents(reactivevalue$SeuratObject)
+    }else {
+    reactivevalue$SeuratObject@meta.data[[input$AnnotationName]]=Idents(reactivevalue$SeuratObject)
+      
+    }
+  reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
+  reactivevalue$metadatacolumn=colnames(reactivevalue$Experiment_Metadata)[!grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))]
+  
+  DGE_Group_Candidate=c()
+  for (i in reactivevalue$metadatacolumn) {
+    DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$Experiment_Metadata[,i]))))
+  }
+  
+  
+  updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=reactivevalue$metadatacolumn
+                       ,selected = 'ShinyGroup')
+  
 
+  updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=reactivevalue$metadatacolumn
+                       ,selected = 'ShinyGroup')
 
+  updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
 
+  updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=reactivevalue$metadatacolumn)
+  
+
+  updateSelectizeInput(session = session,inputId = 'BarGraph1',choices=reactivevalue$metadatacolumn,selected = NULL)
+  
+  updateSelectizeInput(session = session,inputId = 'BarGraph2',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
+  updateSelectizeInput(session = session,inputId = 'Assay',choices=reactivevalue$assays,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
+})
 
 
 
