@@ -26,7 +26,7 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
     reactivevalue$reduction=names((reactivevalue$SeuratObject@reductions))
     reactivevalue$genes=rownames(reactivevalue$SeuratObject)
     
-    
+    print('Finish loading genes')
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject,raster = F))
     updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
@@ -450,12 +450,14 @@ observeEvent(input$submitDGE, {
 AnnotationListener=reactive({list(input$Reference_Column,input$AnnotationName)})
 observeEvent(AnnotationListener(),{
   if (is.null(input$Reference_Column)|is.null(reactivevalue$Experiment_Metadata)) return()
+  if (input$Reference_Column%in%colnames(reactivevalue$Experiment_Metadata)){
   reactivevalue$annotationdata=data.frame(referencecolumn=unique(as.character(reactivevalue$Experiment_Metadata[[input$Reference_Column]])),
                                           row.names = unique(as.character(reactivevalue$Experiment_Metadata[[input$Reference_Column]])))
   reactivevalue$annotationdata$NewAnnotation=''
   reactivevalue$annotationdata_record=reactivevalue$annotationdata
   output$AnnotationTable=DT::renderDataTable(DT::datatable(reactivevalue$annotationdata,editable = list(target = "cell", disable = list(columns = c(0))),rownames= FALSE))
-})
+}
+  })
 
 
 observeEvent((input$AnnotationTable_cell_edit), {
