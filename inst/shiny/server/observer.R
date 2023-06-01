@@ -37,6 +37,7 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject,raster = F))
     updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
+    updateSelectizeInput(session = session,inputId = 'FindMarkersVariable',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
     
     updateSelectizeInput(session = session,inputId = 'DRreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
     updateSelectizeInput(session = session,inputId = 'GIreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
@@ -72,6 +73,7 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
       DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$Experiment_Metadata[,i]))))
     }
     updateSelectizeInput(session = session,inputId = 'Assay',choices=reactivevalue$assays,selected = NULL)
+    updateSelectizeInput(session = session,inputId = 'GenesToInterrogateAssay',choices=reactivevalue$assays,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
     updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
     incProgress(1/n,detail = 'Finish Parsing Columns step 5')
@@ -240,14 +242,16 @@ observeEvent(ReductionListener(),{
              })
 
 GenesToInterrogateListener <- reactive({
-  list(input$GenesToInterrogate,input$PlotGroup,input$GIreduction,input$GILabel)
+  list(input$GenesToInterrogate,input$PlotGroup,input$GIreduction,input$GILabel,input$GenesToInterrogateAssay)
 })
 
 observeEvent( GenesToInterrogateListener(), {
   if (is.null(input$GenesToInterrogate)) return()
   reactivevalue$temp=reactivevalue$SeuratObject
   Idents(reactivevalue$temp)=input$PlotGroup
-  output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,label = input$GILabel,reduction = input$GIreduction))
+  DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
+  output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
+                                            label = input$GILabel,reduction = input$GIreduction))
 
   output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$temp,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup,
                                        pt.size = ifelse(ncol(reactivevalue$SeuratObject)>1000,yes=0,no=NULL)))
@@ -329,6 +333,21 @@ observeEvent( GenesToInterrogateListener(), {
       write.table(reactivevalue$GeneStats, file,sep = '\t',quote=F)
     }
   )
+  genes=input$GenesToInterrogate
+  if (length(genes)>1){
+  temp=reactivevalue$SeuratObject@assays$RNA@data[genes,]
+  fun=function(x) {return(all(x>0))}
+  temp=colnames(temp)[apply(temp,2,fun)]
+  } else {
+    temp=reactivevalue$SeuratObject@assays$RNA@data[genes,]
+    temp=colnames(reactivevalue$SeuratObject@assays$RNA@data)[temp>0]
+  }
+  if (length(temp)>0) {
+    temp=subset(reactivevalue$SeuratObject,cells=temp)
+    temp=data.frame(table(temp[[input$PlotGroup]]))
+    output$CellStatsTableBasedonGeneFiltering=DT::renderDataTable(DT::datatable(temp,editable = F, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
+
+  }
 })
 
 
@@ -522,5 +541,35 @@ observeEvent(input$AddAnnotation,{
   updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
 })
 
-
+observeEvent(input$submitFindMarkers, {
+  variable=input$FindMarkersVariable
+  groups=unique(as.character(reactivevalue$SeuratObject@meta.data[[variable]]))
+  cells=c()
+  sampling.size=500
+  withProgress(message = 'Doing Marker Finder',value = 0, {
+  n=3
+  incProgress(1/n,detail = 'Start Sampling')
+  
+  for (i in groups) {
+    temp=rownames(reactivevalue$SeuratObject@meta.data)[reactivevalue$SeuratObject@meta.data[[variable]]==i]
+    if (length(temp)<=sampling.size) {
+      cells=c(cells,temp)
+    } else {
+      cells=c(cells,sample(temp,sampling.size,replace = F))
+      
+    }
+  }
+  incProgress(1/n,detail = 'Start Normalizing')
+  
+  temp=subset(reactivevalue$SeuratObject,cells=cells)
+  DefaultAssay(temp)='RNA'
+  temp=NormalizeData(temp)
+  Idents(temp)=variable
+  incProgress(1/n,detail = 'Start Marker Finding')
+  
+  temp=FindAllMarkers(temp,only.pos = T)
+  output$FindMarkersResults=DT::renderDataTable(DT::datatable(temp, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
+  
+  })
+})
 

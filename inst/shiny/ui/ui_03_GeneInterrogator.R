@@ -4,6 +4,7 @@ tabPanel("Gene Expression Interrogator",
          titlePanel("Gene Expression Interrogator"),
          sidebarLayout(
            sidebarPanel(
+             selectizeInput('GenesToInterrogateAssay','Select the Assay to explore expression.',choices = NULL,selected = NULL),
              selectInput('GenesToInterrogate','Enter the Gene of interest',choices = NULL,selected = NULL,multiple = T),
              selectizeInput('GIreduction','Dimension Reduction to use to generate figures',choices = NULL,selected = NULL),
              selectizeInput('PlotGroup','Enter the grouping variable for Violin Plot',choices = NULL,selected = NULL),
@@ -28,7 +29,11 @@ tabPanel("Ridge Plot",
 tabPanel('Global Expression Statistics',
          DT::dataTableOutput('GlobalStats'),
          downloadButton('Gene.Expression.Statistics.downloadData','Download')
-         )
+         ),
+tabPanel('Cell Statistics based on gene filtering',
+         h3('In this tab the number of cells with non-zero expressions of selected genes per group in the selected variable will be displayed.'),
+         DT::dataTableOutput('CellStatsTableBasedonGeneFiltering')
+)
 
                          )
 

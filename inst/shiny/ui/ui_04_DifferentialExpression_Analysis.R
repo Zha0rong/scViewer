@@ -17,6 +17,12 @@ tabPanel("Differential Expression Analysis",
                         DT::dataTableOutput('GroupNumber'),
                         DT::dataTableOutput('DifferentialExpressionAnalysisResults'),
                         downloadButton("downloadData", "Download")
+               ),
+               tabPanel("Marker Finder for all groups in selected Variable",
+                  selectizeInput('FindMarkersVariable','Select which variable to do marker finding.',choices = NULL,selected = NULL),
+                  actionButton(inputId = 'submitFindMarkers',label = 'Submit'),
+                  DT::dataTableOutput('FindMarkersResults')
+                  
                )
              )
 
