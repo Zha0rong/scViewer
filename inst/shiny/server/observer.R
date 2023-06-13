@@ -247,6 +247,7 @@ GenesToInterrogateListener <- reactive({
 
 observeEvent( GenesToInterrogateListener(), {
   if (is.null(input$GenesToInterrogate)) return()
+  reactivevalue$temp=NULL
   reactivevalue$temp=reactivevalue$SeuratObject
   Idents(reactivevalue$temp)=input$PlotGroup
   DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
