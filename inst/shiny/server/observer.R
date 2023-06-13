@@ -251,6 +251,7 @@ observeEvent( GenesToInterrogateListener(), {
   reactivevalue$temp=reactivevalue$SeuratObject
   Idents(reactivevalue$temp)=input$PlotGroup
   DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
+  output$FeaturePlot=NULL
   output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
                                             label = input$GILabel,reduction = input$GIreduction))
 
