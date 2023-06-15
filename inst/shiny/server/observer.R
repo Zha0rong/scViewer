@@ -31,6 +31,8 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
     
     reactivevalue$assays=names(reactivevalue$SeuratObject@assays)
     reactivevalue$reduction=names((reactivevalue$SeuratObject@reductions))
+    reactivevalue$reduction=reactivevalue$reduction[!grepl('pca',reactivevalue$reduction,ignore.case = T)]
+    reactivevalue$reduction=reactivevalue$reduction[!grepl('harmony',reactivevalue$reduction,ignore.case = T)]
     reactivevalue$genes=rownames(reactivevalue$SeuratObject)
     
     print('Finish loading genes')
@@ -269,7 +271,7 @@ observeEvent( GenesToInterrogateListener(), {
       #reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
       #reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
       output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
-                                                label = input$GILabel,reduction = input$GIreduction,blend = T))
+                                                label = input$GILabel,reduction = input$GIreduction,blend = T,ncol = 2))
     } else {
       reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
       reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
@@ -569,6 +571,8 @@ observeEvent(input$AddAnnotation,{
   updateSelectizeInput(session = session,inputId = 'Assay',choices=reactivevalue$assays,selected = NULL)
   updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
   updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'FindMarkersVariable',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
 })
 
 observeEvent(input$submitFindMarkers, {
