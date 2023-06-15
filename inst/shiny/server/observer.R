@@ -573,7 +573,7 @@ observeEvent(input$submitFindMarkers, {
   Idents(temp)=variable
   incProgress(1/n,detail = 'Start Marker Finding')
   
-  temp=FindAllMarkers(temp,only.pos = T)
+  temp=FindAllMarkers(temp,only.pos = T,logfc.threshold = 1)
   output$FindMarkersResults=DT::renderDataTable(DT::datatable(temp, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
   
   })
