@@ -193,17 +193,23 @@ observeEvent( input$SampleColumn, {
 
 
 BarGraphListener <- reactive({
-  list(input$BarGraph1,input$BarGraph2)
+  list(input$BarGraph1,input$BarGraph2,input$BarGraphPercentage)
 })
 observeEvent(BarGraphListener(),{
                if ((input$BarGraph1%in%colnames(reactivevalue$Experiment_Metadata))&(input$BarGraph2%in%colnames(reactivevalue$Experiment_Metadata))&!is.null(reactivevalue$SeuratObject)) {
                  if (input$BarGraph1!=input$BarGraph2){
                    temp=data.frame(table(reactivevalue$Experiment_Metadata[,input$BarGraph1],reactivevalue$Experiment_Metadata[,input$BarGraph2]))
-                   colnames(temp)=c("Variable1","Variable2",'CellNumber')#
-
+                   colnames(temp)=c("Variable1","Variable2",'CellNumber')
+                   if (input$BarGraphPercentage){
                    output$BarPlot=renderPlot(ggplot(temp,aes(
                      x=CellNumber,y=Variable1,fill=Variable2
-                   ))+geom_bar(stat = 'identity',position = 'fill')+xlab('Cell Number')+ylab(input$BarGraph1)+labs(fill=input$BarGraph2) )
+                   ))+geom_bar(stat = 'identity',position = 'fill')+xlab('Cell Number')+ylab(input$BarGraph1)+labs(fill=input$BarGraph2) )} else {
+                     output$BarPlot=renderPlot(ggplot(temp,aes(
+                       x=CellNumber,y=Variable1,fill=Variable2
+                     ))+geom_bar(stat = 'identity',position = 'stack')+xlab('Cell Number')+ylab(input$BarGraph1)+labs(fill=input$BarGraph2) )
+                   }
+                   output$BarPlotStats=DT::renderDataTable(DT::datatable(temp,editable = F, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
+
                  }
                }
 

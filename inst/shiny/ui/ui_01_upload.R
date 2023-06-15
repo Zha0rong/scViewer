@@ -29,10 +29,12 @@ tabPanel("Upload Data",useShinyjs(),
                      imageOutput('MainFigure')
                      
             ),
-            tabPanel('Data Distribution BarGraph',
+            tabPanel('Data Distribution',
                      selectizeInput('BarGraph1','First Variable to interrogate distribution',choices=NULL,selected=NULL),
                      selectizeInput('BarGraph2','Second Variable to interrogate distribution',choices=NULL,selected=NULL),
-                     plotOutput('BarPlot')
+                     checkboxInput('BarGraphPercentage','Transfer the BarGraph into percentage plot'),
+                     plotOutput('BarPlot'),
+                     DT::dataTableOutput('BarPlotStats')
                      
             ),
             tabPanel('Annotate Data',
