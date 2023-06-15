@@ -246,7 +246,9 @@ GenesToInterrogateListener <- reactive({
 })
 
 observeEvent( GenesToInterrogateListener(), {
-  if (is.null(input$GenesToInterrogate)) return()
+  if (is.null(input$GenesToInterrogate)|is.null(input$PlotGroup)) return()
+  if ((input$PlotGroup!='')) {
+  print(input$PlotGroup)
   reactivevalue$temp=NULL
   reactivevalue$temp=reactivevalue$SeuratObject
   Idents(reactivevalue$temp)=input$PlotGroup
@@ -350,6 +352,8 @@ observeEvent( GenesToInterrogateListener(), {
     output$CellStatsTableBasedonGeneFiltering=DT::renderDataTable(DT::datatable(temp,editable = F, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
 
   }
+  
+}
 })
 
 
