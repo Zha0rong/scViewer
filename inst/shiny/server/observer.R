@@ -247,7 +247,7 @@ GenesToInterrogateListener <- reactive({
 
 observeEvent( GenesToInterrogateListener(), {
   if (is.null(input$GenesToInterrogate)|is.null(input$PlotGroup)) return()
-  if ((input$PlotGroup!='')) {
+  if ((input$PlotGroup!=''&input$GenesToInterrogateAssay!='')) {
   print(input$PlotGroup)
   reactivevalue$temp=NULL
   reactivevalue$temp=reactivevalue$SeuratObject
@@ -257,9 +257,9 @@ observeEvent( GenesToInterrogateListener(), {
   output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
                                             label = input$GILabel,reduction = input$GIreduction))
 
-  output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$temp,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup,
+  output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup,
                                        pt.size = ifelse(ncol(reactivevalue$SeuratObject)>1000,yes=0,no=NULL)))
-  output$RidgePlot=renderPlot(RidgePlot(reactivevalue$temp,assay = 'RNA',features = input$GenesToInterrogate,group.by = input$PlotGroup))
+  output$RidgePlot=renderPlot(RidgePlot(reactivevalue$temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup))
 
   if (length(input$GenesToInterrogate)==1) {
     globalstats=list()
