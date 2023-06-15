@@ -249,17 +249,17 @@ observeEvent( GenesToInterrogateListener(), {
   if (is.null(input$GenesToInterrogate)|is.null(input$PlotGroup)) return()
   if ((input$PlotGroup!=''&input$GenesToInterrogateAssay!='')) {
   print(input$PlotGroup)
-  reactivevalue$temp=NULL
-  reactivevalue$temp=reactivevalue$SeuratObject
-  DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
-  Idents(reactivevalue$temp)=input$PlotGroup
+  temp=NULL
+  temp=reactivevalue$SeuratObject
+  DefaultAssay(temp)=input$GenesToInterrogateAssay
+  Idents(temp)=input$PlotGroup
   output$FeaturePlot=NULL
-  output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
+  output$FeaturePlot=renderPlot(FeaturePlot(temp,features = input$GenesToInterrogate,order = T,
                                             label = input$GILabel,reduction = input$GIreduction))
 
-  output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup,
+  output$ViolinPlot=renderPlot(VlnPlot(temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup,
                                        pt.size = ifelse(ncol(reactivevalue$SeuratObject)>1000,yes=0,no=NULL)))
-  output$RidgePlot=renderPlot(RidgePlot(reactivevalue$temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup))
+  output$RidgePlot=renderPlot(RidgePlot(temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup))
 
   if (length(input$GenesToInterrogate)==1) {
     globalstats=list()
