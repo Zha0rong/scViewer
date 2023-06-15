@@ -208,7 +208,7 @@ observeEvent(BarGraphListener(),{
                        x=CellNumber,y=Variable1,fill=Variable2
                      ))+geom_bar(stat = 'identity',position = 'stack')+xlab('Cell Number')+ylab(input$BarGraph1)+labs(fill=input$BarGraph2) )
                    }
-                   output$BarPlotStats=DT::renderDataTable(DT::datatable(temp,editable = F, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
+                   output$BarPlotStats=DT::renderDataTable(DT::datatable(temp,editable = F,rownames= FALSE, filter = list(position = "top")),server = T)
 
                  }
                }
