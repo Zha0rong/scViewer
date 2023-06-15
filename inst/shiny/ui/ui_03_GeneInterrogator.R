@@ -15,6 +15,7 @@ tabPanel("Gene Expression Interrogator",
            mainPanel(
              tabsetPanel(
                tabPanel("Feature Plot",
+                        checkboxInput('FeaturePlotOverlay','Generate Overlay Plot for multiple Genes'),
                          imageOutput('FeaturePlot')
 ),
 

@@ -248,7 +248,7 @@ observeEvent(ReductionListener(),{
              })
 
 GenesToInterrogateListener <- reactive({
-  list(input$GenesToInterrogate,input$PlotGroup,input$GIreduction,input$GILabel,input$GenesToInterrogateAssay)
+  list(input$GenesToInterrogate,input$PlotGroup,input$GIreduction,input$GILabel,input$GenesToInterrogateAssay,input$FeaturePlotOverlay)
 })
 
 observeEvent( GenesToInterrogateListener(), {
@@ -260,8 +260,26 @@ observeEvent( GenesToInterrogateListener(), {
   DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
   Idents(reactivevalue$temp)=input$PlotGroup
   output$FeaturePlot=NULL
+  if (input$FeaturePlotOverlay) {
+    if (length(input$GenesToInterrogate)==1) {
+      output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
+                                                label = input$GILabel,reduction = input$GIreduction))
+    }
+    else if (length(input$GenesToInterrogate)==2) {
+      #reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
+      #reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
+      output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
+                                                label = input$GILabel,reduction = input$GIreduction,blend = T))
+    } else {
+      reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
+      reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
+      output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = 'Overlay_Expression',order = T,
+                                                label = input$GILabel,reduction = input$GIreduction))
+    }
+  } else {
   output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
                                             label = input$GILabel,reduction = input$GIreduction))
+  }
 
   output$ViolinPlot=renderPlot(VlnPlot(reactivevalue$temp,assay = input$GenesToInterrogateAssay,features = input$GenesToInterrogate,group.by = input$PlotGroup,
                                        pt.size = ifelse(ncol(reactivevalue$SeuratObject)>1000,yes=0,no=NULL)))
