@@ -7,6 +7,9 @@
 #' @import SingleCellExperiment
 #' @import ggplot2
 #' @import DT
+#' @import celldex
+#' @import SingleR
+#' @import pheatmap
 
 #' @return The shiny app will open
 #'

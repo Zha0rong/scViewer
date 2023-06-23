@@ -40,6 +40,8 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject,raster = F))
     updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
     updateSelectizeInput(session = session,inputId = 'FindMarkersVariable',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
+    updateSelectizeInput(session = session,inputId = 'Annotate_Group',choices =reactivevalue$metadatacolumn,server=T)
+    
     
     updateSelectizeInput(session = session,inputId = 'DRreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
     updateSelectizeInput(session = session,inputId = 'GIreduction',choices =reactivevalue$reduction,selected = NULL,server=T)
@@ -573,6 +575,8 @@ observeEvent(input$AddAnnotation,{
   updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
   updateSelectizeInput(session = session,inputId = 'FindMarkersVariable',choices=reactivevalue$metadatacolumn
                        ,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'Annotate_Group',choices =reactivevalue$metadatacolumn,server=T)
+  
 })
 
 observeEvent(input$submitFindMarkers, {
@@ -606,4 +610,150 @@ observeEvent(input$submitFindMarkers, {
   
   })
 })
+
+
+
+
+
+observeEvent(input$Reference, {
+
+  withProgress(message = 'Reference Downloading',value = 0, {
+    n=2
+    incProgress(1/n,detail = 'Start Downloading Reference.')
+    if (input$Reference=='HumanPrimaryCellAtlasData') {
+      reactivevalue$reference=HumanPrimaryCellAtlasData()
+    }
+    else if (input$Reference=='BlueprintEncodeData') {
+      reactivevalue$reference=BlueprintEncodeData()
+      
+    }
+    else if (input$Reference=='MouseRNAseqData') {
+      reactivevalue$reference=MouseRNAseqData()
+      
+    }
+    else if (input$Reference=='ImmGenData') {
+      reactivevalue$reference=ImmGenData()
+      
+    }
+    else if (input$Reference=='DatabaseImmuneCellExpressionData') {
+      reactivevalue$reference=DatabaseImmuneCellExpressionData()
+      
+    }
+    else if (input$Reference=='NovershternHematopoieticData') {
+      reactivevalue$reference=NovershternHematopoieticData()
+      
+    }
+    else if (input$Reference=='MonacoImmuneData') {
+      reactivevalue$reference=MonacoImmuneData()
+      
+    }
+    incProgress(2/n,detail = 'Finish Downloading Reference.')
+    output$ReferenceInformation=DT::renderDataTable(DT::datatable(data.frame(colData(reactivevalue$reference))))
+    
+  })
+})
+
+observeEvent(input$submitAnnotation, {
+  withProgress(message = 'Annotation',value = 0, {
+  n=3
+  reactivevalue$SeuratObject=NormalizeData(reactivevalue$SeuratObject)
+  counts=reactivevalue$SeuratObject@assays$RNA@counts
+  rownames(counts)=toupper(rownames(counts))
+  Normalized=reactivevalue$SeuratObject@assays$RNA@data
+  rownames(Normalized)=toupper(rownames(Normalized))
+  incProgress(1/n,detail = 'Finished fixing single cell experiment.')
+  Fixed.sce=SingleCellExperiment(list(counts=counts,logcounts=Normalized),colData=reactivevalue$SeuratObject@meta.data)
+  
+  
+  
+  ref.coldata=reactivevalue$reference@colData
+  ref.logcounts=reactivevalue$reference@assays@data@listData$logcounts
+  rownames(ref.logcounts)=toupper(rownames(ref.logcounts))
+  
+  Fixed.ref=SummarizedExperiment(list(logcounts=ref.logcounts),colData=ref.coldata)
+  incProgress(2/n,detail = 'Start annotation')
+  
+  
+  if (input$levelofannotation=='Main'){
+    reactivevalue$annotationresults=SingleR(Fixed.sce[intersect(rownames(Fixed.ref),rownames(Fixed.sce)),], 
+                                          Fixed.ref[intersect(rownames(Fixed.ref),rownames(Fixed.sce)),], 
+                                          clusters=reactivevalue$SeuratObject@meta.data[,input$Annotate_Group], labels=Fixed.ref$label.main)
+  } else {
+    reactivevalue$annotationresults=SingleR(Fixed.sce[intersect(rownames(Fixed.ref),rownames(Fixed.sce)),], 
+                                            Fixed.ref[intersect(rownames(Fixed.ref),rownames(Fixed.sce)),], 
+                                            clusters=reactivevalue$SeuratObject@meta.data[,input$Annotate_Group], labels=Fixed.ref$label.fine)
+    }
+  reactivevalue$annotationresults.df=data.frame(reactivevalue$annotationresults)
+  
+  
+  reactivevalue$annotation=data.frame(reactivevalue$annotationresults.df[,seq(ncol(reactivevalue$annotationresults.df)-4,ncol(reactivevalue$annotationresults.df))])
+  for (i in 1:ncol(reactivevalue$annotation)) {
+    reactivevalue$annotation[,i][is.na(reactivevalue$annotation[,i])]='Unknown'
+  }
+  
+  
+  output$AnnotationResults=DT::renderDataTable(DT::datatable(data.frame(reactivevalue$annotation)))
+  heatmap.data=reactivevalue$annotationresults.df[,-seq(ncol(reactivevalue$annotationresults.df)-4,ncol(reactivevalue$annotationresults.df))]
+  colnames(heatmap.data)=gsub('scores.','',colnames(heatmap.data))
+  output$visualized.AnnotationResults=renderPlot(pheatmap(
+    heatmap.data,
+    cluster_rows = F
+  ))
+  
+  Idents(reactivevalue$SeuratObject)=input$Annotate_Group
+  annotated=reactivevalue$annotation$label
+  names(annotated)=rownames(reactivevalue$annotation)
+  reactivevalue$SeuratObject=RenameIdents(reactivevalue$SeuratObject,annotated)
+  reactivevalue$SeuratObject$singleR.annotation=Idents(reactivevalue$SeuratObject)
+  
+  
+  reactivevalue$Experiment_Metadata=reactivevalue$SeuratObject@meta.data
+  reactivevalue$metadatacolumn=colnames(reactivevalue$Experiment_Metadata)[!grepl("nCount",colnames(reactivevalue$Experiment_Metadata))&!grepl("nFeature",colnames(reactivevalue$Experiment_Metadata))&!grepl("^percent.",colnames(reactivevalue$Experiment_Metadata))]
+  
+  DGE_Group_Candidate=c()
+  for (i in reactivevalue$metadatacolumn) {
+    DGE_Group_Candidate=c(DGE_Group_Candidate,paste0(i,'-',unique(as.character(reactivevalue$Experiment_Metadata[,i]))))
+  }
+  
+  
+  updateSelectizeInput(session = session,inputId = 'variabletogroup',choices=reactivevalue$metadatacolumn
+                       ,selected = 'ShinyGroup')
+  
+  
+  updateSelectizeInput(session = session,inputId = 'variabletosplit',choices=reactivevalue$metadatacolumn
+                       ,selected = 'ShinyGroup')
+  
+  updateSelectizeInput(session = session,inputId = 'SampleColumn',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
+  
+  updateSelectizeInput(session = session,inputId = 'PlotGroup',choices=reactivevalue$metadatacolumn)
+  
+  
+  updateSelectizeInput(session = session,inputId = 'BarGraph1',choices=reactivevalue$metadatacolumn,selected = NULL)
+  
+  updateSelectizeInput(session = session,inputId = 'BarGraph2',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
+  updateSelectizeInput(session = session,inputId = 'Assay',choices=reactivevalue$assays,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'DGEGroup1',choices=DGE_Group_Candidate,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'DGEGroup2',choices=DGE_Group_Candidate,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'FindMarkersVariable',choices=reactivevalue$metadatacolumn
+                       ,selected = NULL)
+  updateSelectizeInput(session = session,inputId = 'Annotate_Group',choices =reactivevalue$metadatacolumn,server=T)
+  
+  
+  
+  
+  
+  
+  incProgress(3/n,detail = 'Finished Annotation')
+  
+  })
+  
+})
+
+
+
+
+
 

@@ -20,7 +20,7 @@ tabPanel("Upload Data",useShinyjs(),
             ),
             #selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
             verbatimTextOutput('object_location'),
-            actionButton(inputId = 'submit',label = 'Submit'),width = 3
+            actionButton(inputId = 'submit',label = 'Submit'),width = 2
 
         ),
         mainPanel(
