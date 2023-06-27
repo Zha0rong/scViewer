@@ -35,7 +35,6 @@ observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
     reactivevalue$reduction=reactivevalue$reduction[!grepl('harmony',reactivevalue$reduction,ignore.case = T)]
     reactivevalue$genes=rownames(reactivevalue$SeuratObject)
     
-    print('Finish loading genes')
     DefaultAssay(reactivevalue$SeuratObject)='RNA'
     output$MainFigure=renderPlot(DimPlot(reactivevalue$SeuratObject,raster = F))
     updateSelectizeInput(session = session,inputId = 'Reference_Column',choices =reactivevalue$metadatacolumn,selected = NULL,server=T)
@@ -258,7 +257,6 @@ GenesToInterrogateListener <- reactive({
 observeEvent( GenesToInterrogateListener(), {
   if (is.null(input$GenesToInterrogate)|is.null(input$PlotGroup)) return()
   if ((input$PlotGroup!=''&input$GenesToInterrogateAssay!='')) {
-  print(input$PlotGroup)
   reactivevalue$temp=NULL
   reactivevalue$temp=reactivevalue$SeuratObject
   DefaultAssay(reactivevalue$temp)=input$GenesToInterrogateAssay
@@ -270,10 +268,18 @@ observeEvent( GenesToInterrogateListener(), {
                                                 label = input$GILabel,reduction = input$GIreduction))
     }
     else if (length(input$GenesToInterrogate)==2) {
-      #reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
-      #reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
-      output$FeaturePlot=renderPlot(FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
-                                                label = input$GILabel,reduction = input$GIreduction,blend = T,ncol = 2))
+      plotinput=reactive({temp=FeaturePlot(reactivevalue$temp,features = input$GenesToInterrogate,order = T,
+                                                   label = input$GILabel,reduction = input$GIreduction,blend = T,ncol = 2)
+      
+      temp$patches$layout$ncol=2
+      temp=ggplotify::as.ggplot(patchwork::patchworkGrob(temp))
+      temp
+      })
+      
+      output$FeaturePlot=renderPlot({
+
+        plotinput()
+      })
     } else {
       reactivevalue$temp=AddModuleScore(reactivevalue$temp,features = list(input$GenesToInterrogate))
       reactivevalue$temp$Overlay_Expression=reactivevalue$temp$Cluster1
@@ -489,7 +495,8 @@ observeEvent(input$submitDGE, {
       incProgress(1/n,detail = 'Finish Differential Expression Analysis')
     })
     Results$gene=rownames(Results)
-    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(Results, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
+    data=Results[,c('gene','avg_log2FC','p_val','p_val_adj')]
+    output$DifferentialExpressionAnalysisResults=DT::renderDataTable(DT::datatable(data, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
 
 
     reactivevalue$DifferentialExpressionAnalysisResults=Results
@@ -521,9 +528,7 @@ observeEvent(AnnotationListener(),{
 
 
 observeEvent((input$AnnotationTable_cell_edit), {
-  print(input$AnnotationTable_cell_edit)
   reactivevalue$annotationdata_record[input$AnnotationTable_cell_edit$row,'NewAnnotation']=input$AnnotationTable_cell_edit$value
-  print(reactivevalue$annotationdata)
 })
 
 observeEvent(input$AddAnnotation,{
@@ -531,11 +536,8 @@ observeEvent(input$AddAnnotation,{
   NewIdents=reactivevalue$annotationdata_record$NewAnnotation
 
   names(NewIdents)=reactivevalue$annotationdata_record$referencecolumn
-  print(reactivevalue$annotationdata_record)
-  print(input$AnnotationName)
-  
+
   Idents(reactivevalue$SeuratObject)=input$Reference_Column
-  print(NewIdents)
   reactivevalue$SeuratObject=RenameIdents(reactivevalue$SeuratObject,NewIdents)
   if (is.null(input$AnnotationName)) {
     reactivevalue$SeuratObject@meta.data[[paste0('New Annotation Column',ncol(reactivevalue$SeuratObject@meta.data))]]=Idents(reactivevalue$SeuratObject)
@@ -605,7 +607,8 @@ observeEvent(input$submitFindMarkers, {
   Idents(temp)=variable
   incProgress(1/n,detail = 'Start Marker Finding')
   
-  temp=FindAllMarkers(temp,only.pos = T,logfc.threshold = 1)
+  temp=FindAllMarkers(temp,only.pos = T,logfc.threshold = 1,test.use = 'wilcox')
+  temp=temp[,c('gene','avg_log2FC','p_val','p_val_adj')]
   output$FindMarkersResults=DT::renderDataTable(DT::datatable(temp, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
   
   })
