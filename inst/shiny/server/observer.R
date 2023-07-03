@@ -624,30 +624,30 @@ observeEvent(input$Reference, {
     n=2
     incProgress(1/n,detail = 'Start Downloading Reference.')
     if (input$Reference=='HumanPrimaryCellAtlasData') {
-      reactivevalue$reference=HumanPrimaryCellAtlasData()
+      reactivevalue$reference=celldex::HumanPrimaryCellAtlasData()
     }
     else if (input$Reference=='BlueprintEncodeData') {
-      reactivevalue$reference=BlueprintEncodeData()
+      reactivevalue$reference=celldex::BlueprintEncodeData()
       
     }
     else if (input$Reference=='MouseRNAseqData') {
-      reactivevalue$reference=MouseRNAseqData()
+      reactivevalue$reference=celldex::MouseRNAseqData()
       
     }
     else if (input$Reference=='ImmGenData') {
-      reactivevalue$reference=ImmGenData()
+      reactivevalue$reference=celldex::ImmGenData()
       
     }
     else if (input$Reference=='DatabaseImmuneCellExpressionData') {
-      reactivevalue$reference=DatabaseImmuneCellExpressionData()
+      reactivevalue$reference=celldex::DatabaseImmuneCellExpressionData()
       
     }
     else if (input$Reference=='NovershternHematopoieticData') {
-      reactivevalue$reference=NovershternHematopoieticData()
+      reactivevalue$reference=celldex::NovershternHematopoieticData()
       
     }
     else if (input$Reference=='MonacoImmuneData') {
-      reactivevalue$reference=MonacoImmuneData()
+      reactivevalue$reference=celldex::MonacoImmuneData()
       
     }
     incProgress(2/n,detail = 'Finish Downloading Reference.')
