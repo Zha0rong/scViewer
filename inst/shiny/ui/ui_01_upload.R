@@ -10,19 +10,20 @@ tabPanel("Upload Data",useShinyjs(),
             uiOutput("tab"))),
     h2("Upload Data",id='UploadDataTitle'),
     #titlePanel("Upload Data")
-    sidebarLayout(sidebarPanel(id='UploadBar',
-            h3("Upload Seurat Object"),
-            fileInput(
-                inputId = "Seurat_Object",
-                label = "Seurat Object",
-                multiple = FALSE,
-                accept = accepted
-            ),
-            #selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
-            verbatimTextOutput('object_location'),
-            actionButton(inputId = 'submit',label = 'Submit'),width = 2
+    #sidebarLayout(
+  #sidebarPanel(id='UploadBar',
+  #          h3("Upload Seurat Object"),
+   #         fileInput(
+   #             inputId = "Seurat_Object",
+   #             label = "Seurat Object",
+   #             multiple = FALSE,
+   #             accept = accepted
+     #       ),
+   #         #selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
+     #       verbatimTextOutput('object_location'),
+    #        actionButton(inputId = 'submit',label = 'Submit'),width = 2
 
-        ),
+    #    ),
         mainPanel(
           tabsetPanel(
             tabPanel('Main Figure of the Dataset',
@@ -48,6 +49,6 @@ tabPanel("Upload Data",useShinyjs(),
         )
 
 #placeholcer
-)
+#)
 
 )
