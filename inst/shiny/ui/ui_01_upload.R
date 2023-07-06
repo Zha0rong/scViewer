@@ -8,22 +8,6 @@ tabPanel("Upload Data",useShinyjs(),
             fluidRow(column(7, h2("SingleViewer"))),
             tags$p("Viewer and Analyzer of Single Cell Data"),
             uiOutput("tab"))),
-    h2("Upload Data",id='UploadDataTitle'),
-    #titlePanel("Upload Data")
-    #sidebarLayout(
-  #sidebarPanel(id='UploadBar',
-  #          h3("Upload Seurat Object"),
-   #         fileInput(
-   #             inputId = "Seurat_Object",
-   #             label = "Seurat Object",
-   #             multiple = FALSE,
-   #             accept = accepted
-     #       ),
-   #         #selectizeInput('objecttype','SingleCellExperiment object or Seurat object',choices=c('Seurat','SingleCellExperiment'),selected='SingleCellExperiment'),
-     #       verbatimTextOutput('object_location'),
-    #        actionButton(inputId = 'submit',label = 'Submit'),width = 2
-
-    #    ),
         mainPanel(
           tabsetPanel(
             tabPanel('Main Figure of the Dataset',
@@ -47,8 +31,5 @@ tabPanel("Upload Data",useShinyjs(),
             )
           )
         )
-
-#placeholcer
-#)
 
 )

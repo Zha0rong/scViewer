@@ -1,10 +1,6 @@
 observe(if (!is.null(reactivevalue$object_location)&(!reactivevalue$Loaded)){
   disable(id='submit')
   disable(id='Seurat_Object')
-  shinyjs::hide(id = "UploadBar")
-  shinyjs::hide(id = "UploadDataTitle")
-  
-  
   
   
   
