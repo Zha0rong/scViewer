@@ -1,7 +1,7 @@
 
-tabPanel("Cluster-Celltype Annotation",
+tabPanel("SingleR Annotation",
          
-         titlePanel("Cluster-Celltype Annotation"),
+         titlePanel("SingleR Annotation"),
          sidebarLayout(
            sidebarPanel(
              selectInput('Annotate_Group','Enter Which Group is used to annotate',choices = NULL,selected = NULL,multiple = F),
