@@ -604,7 +604,7 @@ observeEvent(input$submitFindMarkers, {
   incProgress(1/n,detail = 'Start Marker Finding')
   
   temp=FindAllMarkers(temp,only.pos = T,logfc.threshold = 1,test.use = 'wilcox')
-  temp=temp[,c('gene','avg_log2FC','p_val','p_val_adj')]
+  temp=temp[,c('cluster','gene','avg_log2FC','p_val','p_val_adj')]
   output$FindMarkersResults=DT::renderDataTable(DT::datatable(temp, options = list(dom = 'Bfrtip'),rownames= FALSE, filter = list(position = "top")),server = T)
   
   })
@@ -685,7 +685,7 @@ observeEvent(input$submitAnnotation, {
   reactivevalue$annotationresults.df=data.frame(reactivevalue$annotationresults)
   
   
-  reactivevalue$annotation=data.frame(reactivevalue$annotationresults.df[,seq(ncol(reactivevalue$annotationresults.df)-4,ncol(reactivevalue$annotationresults.df))])
+  reactivevalue$annotation=data.frame(reactivevalue$annotationresults.df[,c('scores','labels','pruned.labels')[c('scores','labels','pruned.labels')%in%colnames(reactivevalue$annotationresults.df)]])
   for (i in 1:ncol(reactivevalue$annotation)) {
     reactivevalue$annotation[,i][is.na(reactivevalue$annotation[,i])]='Unknown'
   }
