@@ -8,6 +8,10 @@ require(ggplot2)
 require(celldex)
 require(SingleR)
 require(pheatmap)
+if (!require("HGNChelper")) install.packages("HGNChelper")
+if (!require("openxlsx")) install.packages("openxlsx")
+require(HGNChelper)
+require(openxlsx)
 
 filelocation <- getShinyOption("filelocation")
 ui <- navbarPage(
