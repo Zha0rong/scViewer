@@ -4,6 +4,8 @@ library(SummarizedExperiment)
 
 
 
+if (!require("HGNChelper")) install.packages("HGNChelper")
+if (!require("openxlsx")) install.packages("openxlsx")
 
 reactivevalue=reactiveValues(object_location=NULL,
                              function_input_object_location=NULL,
