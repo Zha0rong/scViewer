@@ -752,6 +752,83 @@ observeEvent(input$submitAnnotation, {
 })
 
 
+is_cluster <- function(tenx, thresh_genes = 10, thresh_val = log(2), pval = 1e-4){
+  val = 0 # groups that does not satisfy threshold genes
+  counter = 0 # groups that satisfy threshold genes 
+  # loop through the identitiy
+  matrix_output <- data.frame(row.names = row.names(tenx))
+  tenx=NormalizeData(tenx,assay='RNA')
+  for (j in sort(unique(Idents(tenx)))){
+    if (sum(Idents(tenx) == j) < 5){
+      return(FALSE)
+    }
+    markers <- FindMarkers(tenx, ident.1 = j, min.pct = 0.25,assay='RNA')
+    markers <- markers[markers$p_val_adj < pval,]
+    #find if the 10th biggest is less than log2, sum 
+    print(sort(markers$avg_log2FC, decreasing = TRUE)[thresh_genes])
+    # if less than 10 significant genes
+    
+    if (length((markers$avg_log2FC)) < 10){
+      val <- val + 1
+    } else if (sort(markers$avg_log2FC, decreasing = TRUE)[thresh_genes] < thresh_val){
+      #print(val)
+      val <- val + 1
+    } else{
+      counter = counter + 1
+    }
+    if (val > 1){
+      return(FALSE)
+    }
+  }
+  if (val > 1){
+    return(FALSE)
+  }
+  else{
+    return(TRUE)
+  }
+}
+
+# finds resolution that satisfy
+# input: tenx object
+# initial resolution of starting clustering
+# how much to increment up 
+# threshold of genes
+# value of the threshold 
+find_res <- function(tenx, initial_res = 0.1, jump = 0.1, thresh_genes = 10, thresh_val = log(2)) {
+  RES_POST <- initial_res # keeping
+  RES_IT <- initial_res # iterative
+  
+  while(TRUE){
+    print(paste('Trying',RES_IT, sep = ' '))
+    # also check if theres only 1 cluster/ then can go up higher es
+    # Find number of clusters
+    length_group <- length(unique(Idents(tenx)))
+    # if only one group then need to look deeper
+    if (length_group == 1){
+      print(paste('noclusterfound',RES_IT, sep = ' '))
+      # still not groups at 0.7 res stop and just step as 1
+      if (RES_IT == 0.7){
+        print(paste('noclusterfound',RES_IT, sep = ' '))
+        break
+      }
+    } else{
+      testing <- is_cluster(tenx)
+      if (testing == FALSE){ # if not real group
+        print(paste('broke', RES_IT, sep = ' '))
+        RES_IT <- RES_IT - jump
+        RES_POST <- RES_IT
+        print(RES_POST)
+        break
+      } else{ # valid groups
+        RES_POST <- RES_IT
+        print(paste('ok',RES_IT, sep = ' '))
+      }
+    }
+    RES_IT <- RES_IT + jump
+  }
+  # if there is only 1 group, return 0,
+  return(RES_POST)
+}
 
 
 

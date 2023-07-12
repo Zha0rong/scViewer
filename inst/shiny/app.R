@@ -20,6 +20,7 @@ ui <- navbarPage(
   source(file.path("ui", "ui_03_GeneInterrogator.R"),  local = TRUE)$value,
   source(file.path("ui", "ui_04_DifferentialExpression_Analysis.R"),  local = TRUE)$value,
   source(file.path("ui", "ui_05_Celltype_Annotation.R"),  local = TRUE)$value
+  #source(file.path("ui", "ui_06_scType.R"),  local = TRUE)$value
   
 )
 
